@@ -439,6 +439,10 @@ function(HTML5Video, HTML5HLSVideo, Resizer, HLS, _, Time) {
     // It is created on a onPlay event. Cleared on a onPause event.
     // Reinitialized on a onSeek event.
     function onSeek(params) {
+
+        var seek_mode = this.config.seekEnable;
+        var score_mode = this.config.hasScore;
+
         var time = params.time,
             type = params.type,
             oldTime = this.videoPlayer.currentTime;
@@ -446,7 +450,13 @@ function(HTML5Video, HTML5HLSVideo, Resizer, HLS, _, Time) {
         // the sought point, and stop playing at the end.
         this.videoPlayer.goToStartTime = false;
 
-        this.videoPlayer.seekTo(time);
+        if(score_mode == false) {
+            this.videoPlayer.seekTo(time);
+        }
+         // if score 100, video control possible
+        if(seek_mode == true) {
+            this.videoPlayer.seekTo(time);
+        }
         this.trigger('videoProgressSlider.focusSlider');
 
         this.el.trigger('seek', [time, oldTime, type]);

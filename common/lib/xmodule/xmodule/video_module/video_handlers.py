@@ -60,6 +60,16 @@ class VideoStudentViewHandlers(object):
     Handlers for video module instance.
     """
 
+    def _publish_grade(self, status, score):
+        self.runtime.publish(
+            self,
+            'grade',
+            {
+                'value': score,
+                'max_value': 1,
+            }
+        )
+
     def handle_ajax(self, dispatch, data):
         """
         Update values of xfields, that were changed by student.
@@ -79,7 +89,30 @@ class VideoStudentViewHandlers(object):
             'bumper_do_not_show_again': to_boolean,
         }
 
+        if 'saved_video_position' in data.keys():
+            total_time_string = data[u'total_duration']
+            current_time_string = data[u'duration']
+            total_time = float(total_time_string)
+            current_time = float(current_time_string)
+
+            try:
+                avg = current_time/total_time
+            except ZeroDivisionError:
+                avg = 0
+
+            avg_progess = (round(avg*100)/100)
+
+            if avg_progess > 0.95 :
+                avg_progess = 1
+
         if dispatch == 'save_user_state':
+            if 'saved_video_position' in data.keys():
+                if self.lock == 0:
+                    self._publish_grade(1, avg_progess)
+                    if avg_progess == 1:
+                        self.seek_enable = True
+                        self.lock = 1
+
             for key in data:
                 if key in accepted_keys:
                     if key in conversions:

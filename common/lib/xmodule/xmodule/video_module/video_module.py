@@ -311,7 +311,15 @@ class VideoModule(VideoFields, VideoTranscriptsMixin, VideoStudentViewHandlers, 
         # it anymore; therefore we force-disable it in this case (when controls aren't visible).
         autoadvance_this_video = self.auto_advance and autoadvance_enabled
 
+        print "-----------------------------------------------"
+        print "self.has_score -> ", self.has_score
+        print "self.seek_enable -> ", self.seek_enable
+        print "-----------------------------------------------"
+
         metadata = {
+            'hasScore': self.has_score,
+            'seekEnable': self.seek_enable,
+
             'saveStateUrl': self.system.ajax_url + '/save_user_state',
             'autoplay': settings.FEATURES.get('AUTOPLAY_VIDEOS', False),
             'streams': self.youtube_streams,
