@@ -127,7 +127,7 @@
                 }
 
                 if (_.has(data, 'saved_video_position')) {
-                    this.state.storage.setItem('savedVideoPosition', data.saved_video_position, true);
+                    this.state.storage.setItem('savedVideoPovideo closed is-initializedsition', data.saved_video_position, true);
                     data.saved_video_position = Time.formatFull(data.saved_video_position);
                     data.total_duration = this.state.videoPlayer.duration();
                     data.duration = this.state.videoPlayer.currentTime;
@@ -141,11 +141,13 @@
                     data: data,
                     success: function(msg){
                         if ((avgPoint > 95) && (score_mode == true) && (seek_mode == false)){
-                            $('.video').prepend('<h5>동영상 수강 완료</h5>');
+                            $('.progress-check-success').show();
+                            $('.progress-check-fail').hide();
                         }
                     },
                     error: function(XMLHttpRequest, textStatus, errorThrown) {
-                        $('.video').prepend('<h5>동영상 수강 에러</h5>');
+                        $('.progress-check-success').hide();
+                        $('.progress-check-fail').show();
                     }
                 });
             }
