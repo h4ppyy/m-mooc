@@ -547,8 +547,6 @@ def student_dashboard(request):
 
     """
     user = request.user
-    print "mobis_usekey:", request.session['mobis_usekey']
-    print "mobis_memid:", request.session['mobis_memid']
 
     if not UserProfile.objects.filter(user=user).exists():
         return redirect(reverse('account_settings'))
