@@ -12,6 +12,24 @@ _ = lambda text: text
 
 
 class VideoFields(object):
+
+    has_score = Boolean(
+        help=_("If you set this value to True, you can use the video progress check"),
+        display_name=_("Progress Check Activate"),
+        scope=Scope.settings,
+        default=False
+    )
+    seek_enable = Boolean(
+        help=_("progress bar control"),
+        scope=Scope.user_state,
+        default=False
+    )
+    lock = Float(
+        help=_("score control"),
+        scope=Scope.user_state,
+        default=0.0
+    )
+
     """Fields for `VideoModule` and `VideoDescriptor`."""
     display_name = String(
         help=_("The display name for this component."),
