@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """Views for the branding app. """
 import logging
 import urllib
@@ -23,6 +25,11 @@ from openedx.core.djangoapps.site_configuration import helpers as configuration_
 from util.cache import cache_if_anonymous
 from util.json_request import JsonResponse
 
+import os
+import kotechseed128
+import requests
+from django.contrib.auth.models import User
+
 log = logging.getLogger(__name__)
 
 
@@ -33,6 +40,160 @@ def index(request):
     """
     Redirects to main page -- info page if user authenticated, or marketing if not
     """
+
+    """
+    user SSO(Single Sign On) Checking
+    """
+    MOBIS_SSO_CHECK_URL = 'http://mobis.benecafe.co.kr/login/mobis/sso/OpenCommLogin.jsp'
+    MOBIS_BASE_URL = 'http://www.mobis.co.kr'
+    MOBIS_EMAIL = "mobis.co.kr"
+    pass_chk = True
+    chk = False
+    upk = ['', '']
+
+    #test
+    request.session['mobis_usekey'] = '12345'
+    request.session['mobis_memid']  = '67890'
+
+    if not request.user.is_authenticated:
+        try:
+            if 1 == 1:
+                usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
+                memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
+                usekey = usekey.replace(' ', '+')
+                memid = memid.replace(' ', '+')
+
+                chk = False
+                if usekey != None and memid != None:
+                    if len(usekey) == 24 and len(memid) == 24:
+                        chk = True
+
+                if not chk:
+                    return redirect(MOBIS_BASE_URL)
+
+                seed128 = kotechseed128.SEED()
+
+                #base64
+                print ('usekey:', usekey, 'memid:', memid)
+
+                request.session['mobis_usekey'] = '12345'
+                request.session['mobis_memid'] = '67890'
+
+                decdata = seed128.make_usekey_decryption(1, usekey, memid)
+
+                if decdata == None:
+                    print ('branding/views.py - decryption error')
+                    return redirect(MOBIS_BASE_URL)
+
+                seqky = decdata[0]    # usekey
+                seqid = decdata[1]    # emp_no
+                seqid = seqid.replace('\x00', '')
+
+
+                # seed encryption
+                if seqid != None:
+                    if len(seqid) > 6 and len(seqid) < 17:
+                        chk = True
+                        # parameter : user id, fixed length 10 bytes
+                        upk = seed128.make_usekey_encryption(1, seqid, seqky)   # upk : usekey
+                    else:
+                        return redirect(MOBIS_BASE_URL)
+                else:
+                    return redirect(MOBIS_BASE_URL)
+
+                payload = {}
+                payload['usedkey'] = upk[0]
+                payload['memID'] = upk[1]
+
+                r = requests.get(MOBIS_SSO_CHECK_URL, params=payload)
+                res = r.text.upper()
+
+                if not pass_chk:
+                    if res.index("ERROR") > 0:
+                        print ("*** ERROR : ", res)
+                        return redirect(MOBIS_BASE_URL)
+
+                # true / false
+                if pass_chk == True or res.index("TRUE") > 0:
+                    # user exists check - mysql
+                    # username is user_id of the Mobis view table
+                    o1 = User.objects.filter(username=seqid)
+                    if o1 == None:
+                        return redirect(MOBIS_BASE_URL)
+
+                    _email = seqid + "@" + MOBIS_EMAIL
+
+                    # if not exist on auth_user model, insert
+                    if len(o1) == 0:
+
+                        import cx_Oracle
+                        import uuid
+
+                        PORT_NUMBER = 1521
+
+                        dsn = cx_Oracle.makedsn("oracle11g", PORT_NUMBER, "XE")
+                        db = cx_Oracle.connect("scott", "tiger", dsn)
+                        #con = cx_Oracle.connect("system/oracle@localhost:1521")
+                        cur = db.cursor()
+
+                        # get one row
+                        query = """
+                                    select
+                                         USER_ID
+                                        ,USER_NM
+                                        ,DUTY_CD
+                                        ,DUTY_NM_HOME
+                                        ,DEPT_CD
+                                        ,DEPT_NM
+                                        ,USER_GRADE_CODE
+                                        ,JW_NM_HOME
+                                    from VW_HISTORY_RSUM
+                                    where USER_ID = \'{seqid}\'
+                                    and   ROWNUM = 1
+                                """.format(seqid=seqid)
+
+                        #query = """select USER_ID, USER_NM, DUTY_CD, DUTY_NM_HOME, DEPT_CD, DEPT_NM, USER_GRADE_CODE, JW_NM_HOME from VW_HISTORY_RSUM where USER_ID = \'{seqid}\' and   ROWNUM = 1""".format(seqid=seqid)
+                        cur.execute(query)
+                        # rows = cur.fetchone()
+
+                        results = []
+                        exists_chk = False
+                        for row in cur.fetchall():
+                            results.append(row)
+                            exists_chk = True
+
+                        #cursor and connection close
+                        cur.close()
+                        db.close()
+
+                        # not exist user on Mobis emp master view
+                        if not exists_chk:
+                            return redirect(MOBIS_BASE_URL)
+
+                        # 32 bytes password
+                        _uuid = uuid.uuid4().__str__()
+                        _uuid = _uuid.replace('-', '')
+
+                        #devstack
+                        q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings=devstack_docker create_user -p {pw} -e {email} -u {username}""".format(pw=_uuid, email=_email, username=seqid)
+                        #native
+                        #q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings=aws create_user -p {pw} -e {email} -u {username}""".format(pw=_uuid, email=_email, username=seqid)
+                        #q = """sudo -u edxapp /edx/bin/python.edxapp /edx/bin/manage.edxapp lms create_user -p {pw} -e {email} -u {username} --settings=aws""".format(pw=_uuid, email=_email, username=seqid)
+                        print("shell running: ", q)
+                        os.system(q)
+                else:
+                    return redirect(MOBIS_BASE_URL)
+            else:
+                pass
+        except Exception as e:
+            print str(e)
+            raise
+
+        # login id is email : 2018091201@mobis.co.kr
+        #user = User.objects.get(email='staff@example.com')
+        user = User.objects.get(email=_email)
+        user.backend = 'ratelimitbackend.backends.RateLimitModelBackend'
+
     if request.user.is_authenticated:
         # Only redirect to dashboard if user has
         # courses in his/her dashboard. Otherwise UX is a bit cryptic.
@@ -76,6 +237,14 @@ def index(request):
     #  marketing and edge are enabled
     return student.views.index(request, user=request.user)
 
+def getSession(request):
+    #using id check session
+    session_exists_check = {}
+    session_exists_check['status'] = 'false'
+    if request.user.is_authenticated:
+        session_exists_check['status'] = 'true'
+    #print "--> session_exists_check:", session_exists_check
+    return JsonResponse(session_exists_check)
 
 @ensure_csrf_cookie
 @cache_if_anonymous()
