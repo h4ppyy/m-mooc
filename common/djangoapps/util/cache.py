@@ -52,6 +52,10 @@ def cache_if_anonymous(*get_parameters):
             # specifically the branding index, to do authentication.
             # If that page is cached the authentication doesn't
             # happen, so we disable the cache when that feature is enabled.
+            #if (
+            #    not request.user.is_authenticated and
+            #    not settings.FEATURES['AUTH_USE_CERTIFICATES']
+            #):
             if (
                 not request.user.is_authenticated and
                 not settings.FEATURES['AUTH_USE_CERTIFICATES']
