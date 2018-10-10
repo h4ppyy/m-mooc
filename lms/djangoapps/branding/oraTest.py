@@ -43,7 +43,24 @@ cursor = connection.cursor()
 #cursor.execute("select * from tab")
 #cursor.execute("select * from tab")
 
-cursor.execute("select USER_ID ,USER_NM ,DUTY_CD ,DUTY_NM_HOME ,DEPT_CD ,DEPT_NM ,USER_GRADE_CODE ,JW_NM_HOME from WFUSER.VW_HISTORY_SWA")
+#cursor.execute("select USER_ID ,USER_NM ,DUTY_CD ,DUTY_NM_HOME ,DEPT_CD ,DEPT_NM ,USER_GRADE_CODE ,JW_NM_HOME from WFUSER.VW_HISTORY_SWA")
+
+sql = """
+ SELECT
+         USER_ID
+        ,NVL(USER_NM,\'\') USER_NM
+        ,DUTY_CD
+        ,DUTY_NM_HOME
+        ,DEPT_CD
+        ,NVL(DEPT_NM,\'\') DEPT_NM
+        ,USER_GRADE_CODE
+        ,NVL(JW_NM_HOME,\'\') JW_NM_HOME
+    FROM WFUSER.VW_HISTORY_SWA
+    WHERE USER_ID = \'1624810\'
+    AND   ROWNUM = 1
+   """
+
+cursor.execute(sql)
 
 for dt in cursor:
     print("data:", dt)
