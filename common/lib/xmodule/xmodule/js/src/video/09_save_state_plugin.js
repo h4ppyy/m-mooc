@@ -42,7 +42,8 @@
                     play: this.bindUnloadHandler,
                     'pause destroy': this.saveStateHandler,
                     'language_menu:change': this.onLanguageChange,
-                    youtube_availability: this.onYoutubeAvailability
+                    youtube_availability: this.onYoutubeAvailability,
+                    'ended stop': this.saveStateHandler
                 };
                 this.bindHandlers();
             },
@@ -99,6 +100,22 @@
             },
 
             saveState: function(async, data) {
+
+                var seek_mode = this.state.config.seekEnable;
+                var score_mode = this.state.config.hasScore;
+                var startPoint = this.state.videoPlayer.currentTime;
+                var endPoint = this.state.videoPlayer.duration();
+                var avgPoint = (startPoint/endPoint) * 100;
+                if (avgPoint > 95){
+                    avgPoint = 100;
+                }
+
+                console.log("seek_mode -> ", seek_mode);
+                console.log("score_mode -> ", score_mode);
+                console.log("startPoint -> ", startPoint);
+                console.log("endPoint -> ", endPoint);
+                console.log("avgPoint -> ", avgPoint);
+
                 if (!($.isPlainObject(data))) {
                     data = {
                         saved_video_position: this.state.videoPlayer.currentTime
@@ -110,8 +127,10 @@
                 }
 
                 if (_.has(data, 'saved_video_position')) {
-                    this.state.storage.setItem('savedVideoPosition', data.saved_video_position, true);
+                    this.state.storage.setItem('savedVideoPovideo closed is-initializedsition', data.saved_video_position, true);
                     data.saved_video_position = Time.formatFull(data.saved_video_position);
+                    data.total_duration = this.state.videoPlayer.duration();
+                    data.duration = this.state.videoPlayer.currentTime;
                 }
 
                 $.ajax({
@@ -119,7 +138,17 @@
                     type: 'POST',
                     async: !!async,
                     dataType: 'json',
-                    data: data
+                    data: data,
+                    success: function(msg){
+                        if ((avgPoint > 95) && (score_mode == true) && (seek_mode == false)){
+                            $('.progress-check-success').show();
+                            $('.progress-check-fail').hide();
+                        }
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        $('.progress-check-success').hide();
+                        $('.progress-check-fail').show();
+                    }
                 });
             }
         };
