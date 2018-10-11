@@ -16,9 +16,10 @@ from six import text_type
     </header>
     <div class="course-info" aria-hidden="true">
       <h2 class="course-name">
-        <span class="course-organization">${course.display_org_with_default}</span>
-        <span class="course-code">${course.display_number_with_default}</span>
+        <span class="course-organization video_bg_blue">${course.display_org_with_default}</span>
         <span class="course-title">${course.display_name_with_default}</span>
+
+
       </h2>
       <%
       if course.start is not None:
@@ -31,7 +32,9 @@ from six import text_type
       % else:
           <div class="course-date localized_datetime" aria-hidden="true" data-format="shortDate" data-datetime="${course_date_string}" data-string="${_("Starts: {date}")}"></div>
       % endif
+    <span class="course-code">${course.display_number_with_default}</span>
     </div>
+
     <div class="sr">
       <ul>
         <li>${course.display_org_with_default}</li>
@@ -45,6 +48,7 @@ from six import text_type
     </div>
   </a>
 </article>
+
 <%static:require_module_async module_name="js/dateutil_factory" class_name="DateUtilFactory">
     DateUtilFactory.transform(iterationKey=".localized_datetime");
 </%static:require_module_async>

@@ -5,45 +5,14 @@
 <section class="courses-container">
   <section class="highlighted-courses">
 
+    <span style="margin-top: 10px;margin-bottom: 10px; display: inline-block; width: 100%;">
+      <span style="font-size: 20px; font-weight: bold;">전체강좌</span>
+      <span style="float: right; font-size: 15px;"><a href="./dashboard">더보기</a></span>
+    </span>
+
     % if settings.FEATURES.get('COURSES_ARE_BROWSABLE'):
       <section class="courses">
         <ul class="courses-listing">
-          <li class="courses-listing-item">
-
-
-
-
-<article class="course" id="course-v1:ICT+RD_001+ICT_RD_001" role="region" aria-label="IVI 가이드 라인_IVI SW">
-  <a href="http://13.125.208.102/courses/course-v1:ICT+RD_001+ICT_RD_001/about">
-    <header class="course-image">
-      <div class="cover-image">
-        <img src="./_ Mobis SW Academy edX System_files/ba_2.jpg" alt="IVI 가이드 라인_IVI SW RD_001">
-        <div class="learn-more" aria-hidden="true">자세히 알아보기</div>
-      </div>
-    </header>
-    <div class="course-info" aria-hidden="true">
-      <h2 class="course-name">
-        <span class="course-organization video_bg_blue">진행중</span>
-        <span class="course-title">제4차 산업혁명 기반 기술의 이해</span>
-         <div class="course-date localized_datetime" aria-hidden="true" data-format="shortDate" data-datetime="2013-02-05T05:00:00+0000" data-string="시작: {date}">2018-01-01 ~ 2018-01-28</div>
-         <span class="course-code">대구가톨릭대학교</span>
-      </h2>
-
-    </div>
-    <div class="sr">
-      <ul>
-        <li>ICT</li>
-        <li>RD_001</li>
-            <li>개강일: <time class="localized_datetime" itemprop="startDate" data-format="shortDate" data-datetime="2018-01-08T00:30:00+0000">Jan 8, 2018</time></li>
-      </ul>
-    </div>
-  </a>
-</article>
-
-
-
-
-          </li>
           ## limiting the course number by using HOMEPAGE_COURSE_MAX as the maximum number of courses
           %for course in courses[:homepage_course_max]:
           <li class="courses-listing-item">
