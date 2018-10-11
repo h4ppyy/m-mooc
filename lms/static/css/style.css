@@ -518,3 +518,27 @@ a.slide_btn {
 ol.g_menu li.item a{
     color: #003655;
 }
+
+.nav-item img.user-image-frame {
+    width: 30% !important;
+}
+
+.global-header .nav-links .secondary .dropdown-user-menu{
+    right: 107px;
+    top: 37px;
+}
+
+@media (min-width: 992px){
+    .global-header .nav-links .secondary .toggle-user-dropdown{
+        padding: 7px;
+    }
+}
+
+div#dashboard-main{
+    flex-direction: column;
+}
+
+.dashboard .main-container{
+    margin-left: auto;
+    margin-right: auto;
+}

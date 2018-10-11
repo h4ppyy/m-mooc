@@ -24,12 +24,12 @@ displayname = get_enterprise_learner_generic_name(request) or username
     <a href="${reverse('dashboard')}" class="menu-title">
         <img class="user-image-frame" src="${profile_image_url}" alt="">
         <span class="sr-only">${_("Dashboard for:")}</span>
-        <span class="username">${displayname}</span>
+        <span class="username" style="color: #fff;">${displayname}</span>
     </a>
 </div>
 <div class="nav-item hidden-mobile nav-item-dropdown" tabindex="-1">
     <div class="toggle-user-dropdown" role="button" aria-label=${_("Options Menu")} aria-expanded="false" tabindex="0" aria-controls="user-menu">
-        <span class="fa fa-caret-down" aria-hidden="true"></span>
+        <span class="fa fa-caret-down" aria-hidden="true" style="color: #fff"></span>
     </div>
     <div class="dropdown-user-menu hidden" aria-label=${_("More Options")} role="menu" id="user-menu" tabindex="-1">
         % if resume_block:
