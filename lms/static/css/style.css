@@ -9,7 +9,8 @@
 body {
     background: #242c38;
     font-family: 'Roboto';
-    font-size: 62.5%;
+    /*font-size: 62.5%;*/
+    font-size: 1rem;
 }
 
 .clearfix:after {
@@ -514,3 +515,6 @@ a.slide_btn {
     text-align: right;
 }
 
+ol.g_menu li.item a{
+    color: #003655;
+}
