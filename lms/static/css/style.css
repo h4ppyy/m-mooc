@@ -38,10 +38,10 @@ h1 {
 /** ---------------------------------------
  * Slider 
  ----------------------------------------*/
-.container {
-    width: 800px;
-    margin: 40px auto 0;
-}
+/*.container {*/
+    /*width: 800px;*/
+    /*margin: 40px auto 0;*/
+/*}*/
 
 .slider-wrapper {
     z-index: 500;
@@ -574,3 +574,6 @@ body.view-in-course .container{
     padding: 24px 0 55px;
 }
 
+.course-info header.course-profile{
+    padding-top: 30px;
+}
