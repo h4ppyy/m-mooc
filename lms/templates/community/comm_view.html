@@ -1,0 +1,51 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%namespace name='static' file='/static_content.html'/>
+<%block name="pagetitle">
+${page_title}
+</%block>
+<%inherit file="../main.html" />
+
+<%block name="header_extras"></%block>
+<script src="${static.url('js/script/comm_view.js')}" charset="utf-8"></script>
+<style>
+    li p {
+    display: inline-block;
+    margin-bottom:  0px;
+    width: 100%;
+    }
+</style>
+<section class="container">
+    <h2 title="${page_title}" id="main">${page_title}</h2>
+    <!-- [s] board view -->
+    <section class="board-view">
+        <ul>
+            <li class="title">
+                <h3 id="title" title="제목">${board.subject}</h3>
+              <!--   date format 불일치 -->
+                <time id="reg_date" style="bottom: 30px; margin-right: 5px;" title="작성일">작성일 : ${board.reg_date.strftime('%Y/%m/%d')}</time>
+                <time id="mod_date" style="bottom: 15px; margin-right: 5px;" title="수정일">수정일 : ${board.mod_date.strftime('%Y/%m/%d')}</time>
+            </li>
+
+            <li class="contents" id="context" title="내용">
+                ${board.content}
+            </li>
+            <!-- format 불일치 -->
+            % if board.files:
+            <li class="file-list" title="첨부파일" id="file_li" style="display: inline-block; margin: 10px 5px 10px 5px;">
+                <h5 style="display: inline-block;">첨부파일: </h5>
+                % for file in board.files:
+                    % if file.del_yn == 'N' :
+                    <p><a href="/comm_file/${file.attatch_id}" style="margin-left: 5px !important; display: inline-block !important; background: #e8e8e8 !important; padding: 9px 10px !important; margin-bottom: 0px !important; color: #4e4e4e !important; border-radius: 10px !important;">${file.attatch_file_name}</a></p>
+                    %endif
+                % endfor
+            </li>
+            % endif
+
+        </ul>
+
+        <div class="board-btns">
+            <a href="${comm_list_url}"><input type="button" value="목록" class="btn-gray" id="list" title="목록" ></a>
+        </div>
+    </section>
+    <!-- [e] board list -->
+</section>

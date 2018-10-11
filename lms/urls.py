@@ -54,6 +54,11 @@ from student_account import views as student_account_views
 from track import views as track_views
 from util import views as util_views
 
+# community
+from lms.djangoapps.community import views as community
+
+
+
 if settings.DEBUG or settings.FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     django_autodiscover()
     admin.site.site_header = _('LMS Administration')
@@ -141,6 +146,25 @@ urlpatterns = [
 
     url(r'^dashboard/', include('learner_dashboard.urls')),
     url(r'^api/experiments/', include('experiments.urls', namespace='api_experiments')),
+
+    # community url
+    url(r'^comm_list/(?P<section>.*?)/(?P<curr_page>.*?)$', community.comm_list, name='comm_list'),
+    url(r'^comm_view/(?P<section>.*?)/(?P<curr_page>.*?)/(?P<board_id>.*?)$', community.comm_view, name='comm_view'),
+    # url(r'^comm_tabs/(?P<head_title>.*?)/$', 'community.views.comm_tabs', name='comm_tabs'),
+    url(r'^comm_file/(?P<file_id>.*?)/$', community.comm_file, name='comm_file'),
+    #
+    # url(r'^comm_notice$', 'community.views.comm_notice', name='comm_notice'),
+    # url(r'^comm_notice_view/(?P<board_id>.*?)/$', 'community.views.comm_notice_view', name='comm_notice_view'),
+    # url(r'^comm_repository$', 'community.views.comm_repository', name='comm_repository'),
+    # url(r'^comm_repo_view/(?P<board_id>.*?)/$', 'community.views.comm_repo_view', name='comm_repo_view'),
+    # url(r'^comm_mobile$', 'community.views.comm_mobile', name='comm_mobile'),
+    # url(r'^comm_mobile_view/(?P<board_id>.*?)/$', 'community.views.comm_mobile_view', name='comm_mobile_view'),
+    # url(r'^comm_faq/(?P<head_title>.*?)/$', 'community.views.comm_faq', name='comm_faq'),
+    # url(r'^comm_faqrequest/$', 'community.views.comm_faqrequest', name='comm_faqrequest'),
+    # url(r'^comm_faqrequest/(?P<head_title>.*?)/$', 'community.views.comm_faqrequest', name='comm_faqrequest'),
+    # url(r'^comm_k_news$', 'community.views.comm_k_news', name='comm_k_news'),
+    # url(r'^comm_k_news_view/(?P<board_id>.*?)/$', 'community.views.comm_k_news_view', name='comm_k_news_view'),
+    # url(r'^comm_list_json$', 'community.views.comm_list_json', name='comm_list_json'),
 ]
 
 # TODO: This needs to move to a separate urls.py once the student_account and
