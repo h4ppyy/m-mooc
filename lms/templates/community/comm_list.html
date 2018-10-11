@@ -1,0 +1,41 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%namespace name='static' file='/static_content.html'/>
+<%block name="pagetitle">
+${page_title}
+</%block>
+<%inherit file="../main.html" />
+
+<%block name="header_extras"></%block>
+<script src="${static.url('js/script/comm_list.js')}" charset="utf-8"></script>
+<section class="container">
+    <h2 title="${page_title}" id="main">${page_title}</h2>
+    <!-- [s] board list -->
+    <section class="board-search-box" style="margin-top:0;">
+        <select id="search_con" title="검색 조건 선택">
+            <option value="" title="전체">- 전체 -</option>
+            <option value="title" title="제목">- 제목 -</option>
+        </select>
+        <input type="text" id="search_search" onkeydown="onKeyDown()" aria-label="검색어 입력" title="검색어 입력">
+        <input type="button" id="search" value="검색" title="검색" aria-label="검색">
+        <input type="hidden" id="all_pages" value="0">
+        <input type="hidden" id="curr_page" value="${curr_page if curr_page else '1'}">
+    </section>
+    <section class="board-list">
+        <ul>
+            <li class="thead">
+                <span class="no" title="번호">번호</span>
+                <span class="title" title="제목">제목</span>
+                <span class="date" title="날짜">날짜</span>
+            </li>
+
+            <div id="tbody"></div>
+        </ul>
+
+        <div id="paging" class="paging"></div>
+    </section>
+    <!-- [e] board list -->
+</section>
+<br/><br/><br/><br/><br/><br/><br/>
+
+
+
