@@ -7,7 +7,7 @@
 }
 
 body {
-    background: #242c38;
+    /*background: #242c38;*/
     font-family: 'Roboto';
     /*font-size: 62.5%;*/
     font-size: 1rem;
@@ -350,19 +350,19 @@ h1 {
 }
 
 .slide:nth-of-type(1) {
-    background: #D7A151;
+    background: #fff;
 }
 
 .slide:nth-of-type(2) {
-    background: #F4E4CD;
+    background: #fff;
 }
 
 .slide:nth-of-type(3) {
-    background: #C75534;
+    background: #fff;
 }
 
 .slide:nth-of-type(4) {
-    background: #D1D1D4;
+    background: #fff;
 }
 
 .slide_buttons {
@@ -482,6 +482,7 @@ a.slide_btn {
         float:right;
         width:100%;
         background: #4587c2;
+        margin: 0;
     }
 
     .global-header .nav-links .secondary .nav-item{
@@ -524,8 +525,9 @@ ol.g_menu li.item a{
 }
 
 .global-header .nav-links .secondary .dropdown-user-menu{
-    right: 107px;
-    top: 37px;
+    right: auto;
+    top: auto;
+    text-align: left
 }
 
 @media (min-width: 992px){
@@ -542,3 +544,33 @@ div#dashboard-main{
     margin-left: auto;
     margin-right: auto;
 }
+
+ol.nav-dropdown-ol{
+    margin: 0;
+}
+
+.wrapper-preview-menu{
+    background: #fff;
+    max-width: 75rem;
+    padding: 20px 20px 10px;
+}
+
+@media (min-width: 768px){
+    .wrapper-preview-menu{
+    padding: 20px 20px 10px;
+}
+}
+
+.wrapper-preview-menu .preview-actions .action-preview .action-preview-label{
+    color: #2a3240;
+}
+
+body.view-in-course .container{
+    width: auto;
+    margin: 0 auto;
+}
+
+.wiki-wrapper section.wiki .breadcrumbs-header{
+    padding: 24px 0 55px;
+}
+
