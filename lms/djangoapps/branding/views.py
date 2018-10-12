@@ -93,6 +93,9 @@ def cert(request):
 
     try:
         course_key_string = request.POST.get('id') # ex) course-v1:test+test+test
+
+        course_key_string = 'course-v1:test+test+test' # DEBUG
+
         course_key = course_key_string
         course_key_string = course_key_string.replace('course-v1:', '')
         course_key_string = course_key_string.split('+')
@@ -103,64 +106,79 @@ def cert(request):
     c = course_key_string[1]
     r = course_key_string[2]
 
-    database_ip = 'edx.devstack.mongo'
-    client = MongoClient(database_ip, 27017)
-    db = client.edxapp
+    try:
+        database_ip = 'edx.devstack.mongo'
+        client = MongoClient(database_ip, 27017)
+        db = client.edxapp
+    except BaseException:
+        return JsonResponse({'result': 'mongo db connection error'})
 
     passPoint = None
 
-    cursor_active_versions = db.modulestore.active_versions.find_one({'org': o, 'course': c, 'run': r})
-    pb = cursor_active_versions.get('versions').get('published-branch')
-    structure = db.modulestore.structures.find_one({'_id': ObjectId(pb)})
-    blocks = structure.get('blocks')
-    for block in blocks:
-        block_type = block.get('block_type')
-        if block_type == 'course':
-            definition = block.get('definition')
-            print('definition -> ', definition)
-            score = db.modulestore.definitions.find_one({'_id': ObjectId(definition)})
-            fields = score.get('fields')
-            for n in fields:
-                if n == 'grading_policy':
-                    print('n.GRADE_CUTOFFS -> ', fields['grading_policy']['GRADE_CUTOFFS']['Pass'])
-                    passPoint = fields['grading_policy']['GRADE_CUTOFFS']['Pass']
-                    break
-                else:
-                    passPoint = '0.5'
+    try:
+        cursor_active_versions = db.modulestore.active_versions.find_one({'org': o, 'course': c, 'run': r})
+        pb = cursor_active_versions.get('versions').get('published-branch')
+        structure = db.modulestore.structures.find_one({'_id': ObjectId(pb)})
+        blocks = structure.get('blocks')
+        for block in blocks:
+            block_type = block.get('block_type')
+            if block_type == 'course':
+                definition = block.get('definition')
+                print('definition -> ', definition)
+                score = db.modulestore.definitions.find_one({'_id': ObjectId(definition)})
+                fields = score.get('fields')
+                for n in fields:
+                    if n == 'grading_policy':
+                        print('n.GRADE_CUTOFFS -> ', fields['grading_policy']['GRADE_CUTOFFS']['Pass'])
+                        passPoint = fields['grading_policy']['GRADE_CUTOFFS']['Pass']
+                        break
+                    else:
+                        passPoint = '0.5'
+    except BaseException:
+        return JsonResponse({'result': 'fail create passPoint'})
 
-    with connections['default'].cursor() as cur:
-        sql = '''
-            select user_id
-            from student_courseenrollment
-            where course_id = '{course_key}'
-        '''.format(course_key=course_key)
-        cur.execute(sql)
-        rows = cur.fetchall()
+    try:
+        with connections['default'].cursor() as cur:
+            sql = '''
+                select user_id
+                from student_courseenrollment
+                where course_id = '{course_key}'
+            '''.format(course_key=course_key)
+            cur.execute(sql)
+            rows = cur.fetchall()
+    except BaseException:
+        return JsonResponse({'result': 'mysql logic error'})
 
-    courseObject = CourseKey.from_string(course_key)
-    master_user = User.objects.get(username='staff')
-    course = get_course_with_access(master_user, 'load', courseObject)
+    try:
+        courseObject = CourseKey.from_string(course_key)
+        master_user = User.objects.get(username='staff')
+        course = get_course_with_access(master_user, 'load', courseObject)
+    except BaseException:
+        return JsonResponse({'result': 'fail create course object'})
 
-    for row in rows:
-        print(row[0])
-        o1 = User.objects.get(id=row[0])
-        course_grade = CourseGradeFactory().read(o1, course)
-        percent = course_grade.percent
+    try:
+        for row in rows:
+            print(row[0])
+            o1 = User.objects.get(id=row[0])
+            course_grade = CourseGradeFactory().read(o1, course)
+            percent = course_grade.percent
 
-        if passPoint <= percent:
-            with connections['default'].cursor() as cur:
-                sql = '''
-                    insert into student_course_cert(course_id, user_id, score, pass)
-                    values('{course_key}','{user_id}', '{score}', 'Y')
-                '''.format(course_key=course_key, user_id=row[0], score=percent)
-                cur.execute(sql)
-        else:
-            with connections['default'].cursor() as cur:
-                sql = '''
-                    insert into student_course_cert(course_id, user_id, score, pass)
-                    values('{course_key}','{user_id}', '{score}', 'N')
-                '''.format(course_key=course_key, user_id=row[0], score=percent)
-                cur.execute(sql)
+            if passPoint <= percent:
+                with connections['default'].cursor() as cur:
+                    sql = '''
+                        insert into student_course_cert(course_id, user_id, score, pass)
+                        values('{course_key}','{user_id}', '{score}', 'Y')
+                    '''.format(course_key=course_key, user_id=row[0], score=percent)
+                    cur.execute(sql)
+            else:
+                with connections['default'].cursor() as cur:
+                    sql = '''
+                        insert into student_course_cert(course_id, user_id, score, pass)
+                        values('{course_key}','{user_id}', '{score}', 'N')
+                    '''.format(course_key=course_key, user_id=row[0], score=percent)
+                    cur.execute(sql)
+    except BaseException:
+        return JsonResponse({'result': 'mysql insert logic error'})
 
     return JsonResponse({'result': 'success'})
 
