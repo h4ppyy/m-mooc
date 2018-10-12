@@ -33,6 +33,7 @@ from django.contrib.auth.models import User
 import hashlib
 import subprocess
 import datetime
+from django.views.decorators.csrf import csrf_exempt
 
 log = logging.getLogger(__name__)
 
@@ -40,6 +41,7 @@ log = logging.getLogger(__name__)
 #@cache_if_anonymous()
 @ensure_csrf_cookie
 @transaction.non_atomic_requests
+@csrf_exempt
 def index(request):
     """
     Redirects to main page -- info page if user authenticated, or marketing if not
@@ -71,8 +73,12 @@ def index(request):
         logging.info('---------- %s ---------------', 'step 2')
         try:
 	    if 1 == 1:
-                usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
-                memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
+                #usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
+                #memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
+                usekey = request.POST.get('usekey')  # usekey : emp_no (ex: 2018092011)
+                memid = request.POST.get('memid')    # memid  : emp_no (ex: 2018092011)
+                logging.info('usekey--> %s', usekey)
+                logging.info('memid--> %s', memid)
 
                 if usekey == None or memid == None:
                     logging.info('usekey None error %s', 'views.py checking')
