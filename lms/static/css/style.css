@@ -577,3 +577,7 @@ body.view-in-course .container{
 .course-info header.course-profile{
     padding-top: 30px;
 }
+
+.container.about{
+    padding: 20px 30px 15px;
+}

@@ -6,11 +6,26 @@
 
 <main id="main" aria-label="Content" tabindex="-1">
     <section class="container about">
-        <h1>
-            <%block name="pageheader">${page_header or _("About")}</%block>
-        </h1>
-        <p>
-            <%block name="pagecontent">${page_content or _("This page left intentionally blank. Feel free to add your own content.")}</%block>
-        </p>
+        <div style="margin-bottom: 150px; margin-top: 50px; display: inline-block; padding: 0 30px;">
+            <div style="float: left;display: inline-block;width: 50%; border-radius: 25px; overflow: hidden;">
+                <img style="width: 100%;" alt="b1" src="/static/images/b1.jpg">
+            </div>
+
+            <div style="float:left;display: inline-block;width: 50%;padding: 25px;padding-top: 62px;">
+                <p style="font-size: 30px;letter-spacing: -2px;font-weight: bold;margin-bottom: 37px;display: block;">모비스 연구원의 지식 공유의 장 M-MOOC</p>
+
+                <p style="font-size: 18px; line-height: 25px;">MOOC(Massive on line open course)는 MIT, 스탠포드 대학교 등 미 우수대학교의 강의를 대중에 공유하기 위하여 만든 온라인 공개강좌 플랫폼 입니다.<br>
+
+                    M-MOOC도 모비스 연구원의 지식공유와 선 순환을 목적으로 구축 되었습니다.<br>
+
+                    전문가의 컨텐츠 제공 뿐만 아니라 학습자가 직접 학습 컨텐츠를 개발/운영/평가 할 수 있도록 구성 되어 있어 양 방향의 지식공유의 장으로 활용 할 예정 입니다.<br>
+
+                    SW 직무부터 시작하여, 전 직무 대상확대 적용 예정이오니 연구원 분들의 많은 관심 부탁 드립니다.<br>
+
+                    감사합니다.
+                </p>
+            </div>
+
+        </div>
     </section>
 </main>
