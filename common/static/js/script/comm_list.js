@@ -95,7 +95,7 @@ function search(page_no) {
 
             for (var i = 0; i < data.length; i++) {
 
-                var reg_date = new Date(data[i].reg_date);
+                var reg_date = new Date(data[i].regist_date);
                 var attach_file = data[i].attach_file;
 
                 var title = '';
@@ -151,7 +151,7 @@ function search(page_no) {
 
                 html += "<li class='tbody'>";
                 html += "   <span class='no'>" + eval(total_cnt - (10 * (curr_page - 1) + i)) + "</span>";
-                html += "   <span class='title'><a id='comm_link' href='/comm_view/" + data[i].section + "/" + $("#curr_page").val() + "/" + data[i].board_id + "'><i>" + title + "</i>" + data[i].subject + " </a>";
+                html += "   <span class='title'><a id='comm_link' href='/comm_view/" + "N" + "/" + $("#curr_page").val() + "/" + data[i].board_id + "'><i>" + title + "</i>" + data[i].subject + " </a>";
                 if (attach_file == 'Y')
                     html += "<img style='margin-right: 5px;' src='/static/images/Clip.png'/>";
                 if (reg_date > yesterday)

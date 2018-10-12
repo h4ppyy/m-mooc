@@ -13,6 +13,77 @@ ${page_title}
     margin-bottom:  0px;
     width: 100%;
     }
+  .container > h2 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    font-family: "Nanum Gothic";
+    border-bottom: solid 1px #e0e0e0;
+    padding-bottom: 1.250rem;
+    margin-bottom: 1.5rem;
+  }
+  .board-view li.title {
+    border-top: solid 2px #646464;
+    border-bottom: solid 1px #8a8a8a;
+    font-weight: 700;
+    padding: 18px 75px 18px 0;
+    position: relative;
+}
+  .board-view {
+    padding-top: 50px;
+}
+.board-view li.title h3 {
+    line-height: 1.3em;
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: "Nanum Gothic";
+    margin: 0;
+}
+  .board-view li.title time {
+    font-weight: 400;
+    position: absolute;
+    right: 0;
+    bottom: 10px;
+    font-size: 0.813rem;
+}
+  .board-view li.contents {
+    padding: 30px 0;
+    font-size: 0.813rem;
+    line-height: 1.7em;
+}
+  .board-btns {
+    border-top: solid 1px #cfded8;
+    padding-top: 10px;
+    text-align: right;
+    margin-bottom: 50px;
+}
+  .content-wrapper .container {
+    max-width: 1200px;
+    border: 0;
+    min-width: 320px;
+    padding: 30px 0;
+}
+  input[type="button"].btn-gray, input[type="button"].btn-gray:hover {
+    background: #f2f5f9;
+    border-color: #d9ded9;
+    color: #000;
+}
+  input[type="button"], input[type="button"]:hover, input[type="submit"], input[type="submit"]:hover {
+    background: #646464;
+    font-size: 0.875rem;
+    box-shadow: none;
+    text-shadow: none;
+    border-radius: 3px;
+    font-family: "Nanum Gothic";
+}
+  li{
+    list-style: none;
+  }
+  ul{
+    padding: -40px;
+  }
+  ol{
+    padding: -40px;
+  }
 </style>
 <section class="container">
     <h2 title="${page_title}" id="main">${page_title}</h2>
@@ -22,8 +93,8 @@ ${page_title}
             <li class="title">
                 <h3 id="title" title="제목">${board.subject}</h3>
               <!--   date format 불일치 -->
-                <time id="reg_date" style="bottom: 30px; margin-right: 5px;" title="작성일">작성일 : ${board.reg_date.strftime('%Y/%m/%d')}</time>
-                <time id="mod_date" style="bottom: 15px; margin-right: 5px;" title="수정일">수정일 : ${board.mod_date.strftime('%Y/%m/%d')}</time>
+                <time id="reg_date" style="bottom: 30px; margin-right: 5px;" title="작성일">작성일 : ${board.regist_date}</time>
+                <time id="mod_date" style="bottom: 15px; margin-right: 5px;" title="수정일">수정일 : ${board.modify_date}</time>
             </li>
 
             <li class="contents" id="context" title="내용">
@@ -35,7 +106,7 @@ ${page_title}
                 <h5 style="display: inline-block;">첨부파일: </h5>
                 % for file in board.files:
                     % if file.del_yn == 'N' :
-                    <p><a href="/comm_file/${file.attatch_id}" style="margin-left: 5px !important; display: inline-block !important; background: #e8e8e8 !important; padding: 9px 10px !important; margin-bottom: 0px !important; color: #4e4e4e !important; border-radius: 10px !important;">${file.attatch_file_name}</a></p>
+                    <p><a href="/comm_file/${file.seq}" style="margin-left: 5px !important; display: inline-block !important; background: #e8e8e8 !important; padding: 9px 10px !important; margin-bottom: 0px !important; color: #4e4e4e !important; border-radius: 10px !important;">${file.file_origin_name}</a></p>
                     %endif
                 % endfor
             </li>
