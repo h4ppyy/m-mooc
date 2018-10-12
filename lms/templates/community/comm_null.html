@@ -1,0 +1,24 @@
+<%! from django.utils.translation import ugettext as _ %>
+<%namespace name='static' file='/static_content.html'/>
+<%block name="pagetitle">
+${page_title}
+</%block>
+<%inherit file="../main.html" />
+
+<%block name="header_extras"></%block>
+<script src="${static.url('js/script/comm_view.js')}" charset="utf-8"></script>
+<style>
+    li p {
+    display: inline-block;
+    margin-bottom:  0px;
+    width: 100%;
+    }
+</style>
+<section class="container">
+    <h2 title="${page_title}" id="main">${page_title}</h2>
+    <!-- [s] board view -->
+    <section class="board-view" style="margin-bottom: 50px; text-align: center">
+        삭제된 게시물 입니다.
+    </section>
+    <!-- [e] board list -->
+</section>

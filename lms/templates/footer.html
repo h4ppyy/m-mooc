@@ -9,126 +9,65 @@
 <% footer = get_footer(is_secure=is_secure) %>
 <%namespace name='static' file='static_content.html'/>
 
-% if uses_bootstrap:
-  <div class="container-fluid wrapper-footer">
-    <footer>
-      <div class="row">
-        <div class="col-md-9">
-          <nav class="navbar site-nav navbar-expand-sm" aria-label="${_('About')}">
-            <ul class="navbar-nav">
-              % for item_num, link in enumerate(footer['navigation_links'], start=1):
-                <li class="nav-item">
-                  <a class="nav-link" href="${link['url']}">${link['title']}</a>
-                </li>
-              % endfor
-            </ul>
-          </nav>
+  <div class="wrapper wrapper-footer" style="background:#333;">
 
-          ## Site operators: Please do not remove this paragraph! This attributes back to edX and makes your acknowledgement of edX's trademarks clear.
-          <p class="copyright">${footer['copyright']} ${u" | {icp}".format(icp=getattr(settings,'ICP_LICENSE')) if getattr(settings,'ICP_LICENSE',False) else ""}</p>
+    <p style="font-size: 1rem;text-align: center; color: #fff; padding: 10px;" title="Copyright 2016. HYUNDAI MOBIS. ALL RIGHTS RESERVED">Copyright 2016. HYUNDAI MOBIS. ALL RIGHTS RESERVED</p>
 
-          <nav class="navbar legal-nav navbar-expand-sm" aria-label="${_('Legal')}">
-            <ul class="navbar-nav">
-              % for item_num, link in enumerate(footer['legal_links'], start=1):
-                <li class="nav-item">
-                  <a class="nav-link" href="${link['url']}">${link['title']}</a>
-                </li>
-              % endfor
-              <li class="nav-item">
-                <a class="nav-link" href="${footer['edx_org_link']['url']}">${footer['edx_org_link']['text']}</a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-        <div class="col-md-3">
-          ## Please leave this link and use one of the logos provided
-          ## The OpenEdX link may be hidden when this view is served
-          ## through an API to partner sites (such as marketing sites or blogs),
-          ## which are not technically powered by Open edX.
-          % if not hide_openedx_link:
-            <div class="footer-about-openedx">
-              <p>
-                <a href="${footer['openedx_link']['url']}">
-                  <img src="${footer['openedx_link']['image']}" alt="${footer['openedx_link']['title']}" width="140" />
-                </a>
-              </p>
-            </div>
-          % endif
-        </div>
-      </div>
-    </footer>
-  </div>
-% else:
-  <div class="wrapper wrapper-footer">
-    <footer id="footer-openedx" class="grid-container"
-      ## When rendering the footer through the branding API,
-      ## the direction may not be set on the parent element,
-      ## so we set it here.
-      % if bidi:
-        dir=${bidi}
-      % endif
-    >
+    <footer id="footer-openedx" class="grid-container"style="display: none;">
       <div class="colophon">
-        <nav class="nav-colophon" aria-label="${_('About')}">
+        <!--<nav class="nav-colophon" aria-label="소개" >
           <ol>
-              % for item_num, link in enumerate(footer['navigation_links'], start=1):
-              <li class="nav-colophon-0${item_num}">
-                <a id="${link['name']}" href="${link['url']}">${link['title']}</a>
+              <li class="nav-colophon-01">
+                <a id="about" href="http://13.125.208.102/about">소개</a>
               </li>
-              % endfor
-          </ol>
+              <li class="nav-colophon-02">
+                <a id="blog" href="http://13.125.208.102/blog">블로그</a>
+              </li>
+              <li class="nav-colophon-03">
+                <a id="contact" href="http://13.125.208.102/support/contact_us">연락처</a>
+              </li>
+              <li class="nav-colophon-04">
+                <a id="donate" href="http://13.125.208.102/donate">기부하기</a>
+              </li>
+          </ol>-->
         </nav>
 
-        % if context.get('include_language_selector', footer_language_selector_is_enabled()):
-            <%include file="${static.get_template_path('widgets/footer-language-selector.html')}"/>
-        % endif
 
         <div class="wrapper-logo">
           <p>
-            <a href="/">
-              ## The default logo is a placeholder.
-              ## You can either replace this link entirely or update
-              ## the FOOTER_ORGANIZATION_IMAGE in Django settings.
-              ## If you customize FOOTER_ORGANIZATION_IMAGE, then the image
-              ## can be included in the footer on other sites
-              ## (e.g. a blog or marketing front-end) to provide a consistent
-              ## user experience.  See the branding app for details.
-              <img alt="organization logo" src="${footer['logo_image']}">
+            <a href="http://13.125.208.102/">
+              <img alt="organization logo" src="./_ Mobis SW Academy edX System_files/logo.b6c374d66d57.png">
             </a>
           </p>
         </div>
 
-        ## Site operators: Please do not remove this paragraph! This attributes back to edX and makes your acknowledgement of edX's trademarks clear.
-        <p class="copyright">${footer['copyright']} ${u" | {icp}".format(icp=getattr(settings,'ICP_LICENSE')) if getattr(settings,'ICP_LICENSE',False) else ""}</p>
+        <p class="copyright">© Mobis SW Academy edX System. All rights reserved except where noted. EdX, Open edX and their respective logos are trademarks or registered trademarks of edX Inc. </p>
 
-        <nav class="nav-legal" aria-label="${_('Legal')}">
+        <nav class="nav-legal" aria-label="법률적">
           <ul>
-            % for item_num, link in enumerate(footer['legal_links'], start=1):
-              <li class="nav-legal-0${item_num}">
-                <a href="${link['url']}">${link['title']}</a>
+              <li class="nav-legal-01">
+                <a href="http://13.125.208.102/privacy">개인정보 보호 정책</a>
               </li>
-            % endfor
-            <li><a href="${footer['edx_org_link']['url']}">${footer['edx_org_link']['text']}</a></li>
+              <li class="nav-legal-02">
+                <a href="http://13.125.208.102/tos">서비스 규정</a>
+              </li>
+              <li class="nav-legal-03">
+                <a href="http://13.125.208.102/honor">학습자 서약</a>
+              </li>
+            <li><a href="https://www.edx.org/?utm_medium=affiliate_partner&amp;utm_source=opensource-partner&amp;utm_content=open-edx-partner-footer-link&amp;utm_campaign=open-edx-footer">edX.org의 무료 강의를 수강하세요.</a></li>
           </ul>
         </nav>
       </div>
 
-      ## Please leave this link and use one of the logos provided
-      ## The OpenEdX link may be hidden when this view is served
-      ## through an API to partner sites (such as marketing sites or blogs),
-      ## which are not technically powered by OpenEdX.
-      % if not hide_openedx_link:
       <div class="footer-about-openedx">
         <p>
-          <a href="${footer['openedx_link']['url']}">
-            <img src="${footer['openedx_link']['image']}" alt="${footer['openedx_link']['title']}" width="140" />
+          <a href="http://open.edx.org/">
+            <img src="./_ Mobis SW Academy edX System_files/edx-openedx-logo-tag.png" alt="Powered by Open edX" width="140">
           </a>
         </p>
       </div>
-      % endif
     </footer>
   </div>
-% endif
 % if include_dependencies:
   <%static:js group='base_vendor'/>
   <%static:css group='style-vendor'/>
