@@ -107,6 +107,8 @@ from util.db import outer_atomic
 from util.json_request import JsonResponse
 from util.password_policy_validators import SecurityPolicyError, validate_password
 
+from django.db import connections
+
 log = logging.getLogger("edx.student")
 
 AUDIT_LOG = logging.getLogger("audit")
@@ -194,6 +196,30 @@ def index(request, extra_context=None, user=AnonymousUser()):
 
     # Add marketable programs to the context.
     context['programs_list'] = get_programs_with_type(request.site, include_hidden=False)
+
+    index_comm = list()
+    with connections['default'].cursor() as cur:
+        query = '''
+              SELECT board_id,
+                     subject,
+                     regist_date
+                FROM tb_board
+               WHERE use_yn = 'Y' AND delete_yn = 'N'
+            ORDER BY board_id DESC
+               LIMIT 4;
+        '''
+
+        cur.execute(query)
+        comm_data = cur.fetchall()
+
+        for data in comm_data:
+            row = dict()
+            row['board_id'] = data[0]
+            row['title'] = data[1]
+            row['regist_date'] = data[2].strftime('%Y-%m-%d')
+            index_comm.append(row)
+
+    context['community'] = index_comm
 
     return render_to_response('index.html', context)
 

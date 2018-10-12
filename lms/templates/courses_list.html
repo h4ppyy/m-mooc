@@ -12,38 +12,16 @@
 
     <div class="notice_list">
       <ul>
+        % for comm in context['community']:
         <li>
           <div class="notice_stxt_area">
                                 <span class="notice_stxt">
-                                <a href="#">[대학뉴스] 한성대학교 ‘4차 산업혁명, 나의 직장생활은</a>
+                                <a href="/comm_list/N/${comm['board_id']}">${comm['title']}</a>
                                 </span>
-            <span class="notice_date">2018-09-04</span>
+            <span class="notice_date">${comm['regist_date']}</span>
           </div>
         </li>
-        <li>
-          <div class="notice_stxt_area">
-                                <span class="notice_stxt">
-                                <a href="#">[대학뉴스] 한성대학교 ‘4차 산업혁명, 나의 직장생활은</a>
-                                </span>
-            <span class="notice_date">2018-09-04</span>
-          </div>
-        </li>
-        <li>
-          <div class="notice_stxt_area">
-                                <span class="notice_stxt">
-                                <a href="#">[대학뉴스] 한성대학교 ‘4차 산업혁명, 나의 직장생활은</a>
-                                </span>
-            <span class="notice_date">2018-09-04</span>
-          </div>
-        </li>
-        <li>
-          <div class="notice_stxt_area">
-                                <span class="notice_stxt">
-                                <a href="#">[대학뉴스] 한성대학교 ‘4차 산업혁명, 나의 직장생활은</a>
-                                </span>
-            <span class="notice_date">2018-09-04</span>
-          </div>
-        </li>
+        % endfor
       </ul>
     </div>
   </div>
