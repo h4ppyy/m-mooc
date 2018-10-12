@@ -116,10 +116,10 @@ def comm_list(request, section=None, curr_page=None):
         return render_to_response('community/comm_list.html', context)
 
 @ensure_csrf_cookie
-def comm_view(request, section=None, curr_page=None, board_id=None):
+def comm_view(request, section='N', curr_page=None, board_id=None):
+    board_id = int(board_id)
 
     #print "board_id -> ", board_id
-    section = 'N'
     if section == 'N':
         page_title = '공지사항'
     else:
@@ -149,8 +149,13 @@ def comm_view(request, section=None, curr_page=None, board_id=None):
     if board_id is None:
         return redirect('/')
 
+
     board = TbBoard.objects.get(board_id=board_id)
 
+    if board:
+        board.files = TbBoardAttach.objects.filter(del_yn='N')
+
+    board.regist_date = board.regist_date.strftime('%Y/%m/%d')
 
     if section == 'N':
         page_title = '공지사항'
@@ -182,11 +187,11 @@ def comm_file(request, file_id=None):
         print 'comm_file error --- e'
         return HttpResponse("<script>alert('파일이 존재하지 않습니다.'); window.history.back();</script>")
 
-    filepath = file.attach_file_path.replace('/manage/home/static/upload/', '/edx/var/edxapp/staticfiles/file_upload/') if file.attach_file_path else '/edx/var/edxapp/staticfiles/file_upload/'
-    filename = file.attatch_file_name
+    filepath = file.file_path.replace('/manage/home/static/upload/', '/edx/var/edxapp/staticfiles/file_upload/') if file.file_path else '/edx/var/edxapp/staticfiles/file_upload/'
+    filename = file.file_origin_name
 
     if not file or not os.path.exists(filepath + filename):
-        print 'filepath + file.attatch_file_name :', filepath + filename
+        print 'filepath + file.file_origin_name :', filepath + filename
         return HttpResponse("<script>alert('파일이 존재하지 않습니다 .'); window.history.back();</script>")
 
     response = HttpResponse(open(filepath + filename, 'rb'), content_type='application/force-download')
@@ -217,7 +222,7 @@ class TbBoard(models.Model):
 
 class TbBoardAttach(models.Model):
     seq = models.AutoField(primary_key=True)
-    board_id = models.ForeignKey('TbBoard', on_delete=models.CASCADE, related_name='attaches', null=True)
+    board_id = models.IntegerField(11)
     file_path = models.CharField(max_length=255)
     file_enc_name = models.CharField(max_length=255)
     file_origin_name = models.CharField(max_length=255, blank=True, null=True)
@@ -230,5 +235,5 @@ class TbBoardAttach(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'tb_board_attach'
-        app_label = 'tb_board_attach'
+        db_table = 'tb_board_store'
+        app_label = 'tb_board_store'

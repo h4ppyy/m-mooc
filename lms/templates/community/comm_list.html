@@ -6,34 +6,279 @@ ${page_title}
 <%inherit file="../main.html" />
 
 <%block name="header_extras"></%block>
+
 <script src="${static.url('js/script/comm_list.js')}" charset="utf-8"></script>
+<style>
+  li p {
+    display: inline-block;
+    margin-bottom:  0px;
+    width: 100%;
+  }
+  .container > h2 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    font-family: "Nanum Gothic";
+    border-bottom: solid 1px #e0e0e0;
+    padding-bottom: 1.250rem;
+    margin-bottom: 1.5rem;
+  }
+  .board-view li.title {
+    border-top: solid 2px #646464;
+    border-bottom: solid 1px #8a8a8a;
+    font-weight: 700;
+    padding: 18px 75px 18px 0;
+    position: relative;
+  }
+  .board-view {
+    padding-top: 50px;
+  }
+  .board-view li.title h3 {
+    line-height: 1.3em;
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: "Nanum Gothic";
+    margin: 0;
+  }
+  .board-view li.title time {
+    font-weight: 400;
+    position: absolute;
+    right: 0;
+    bottom: 10px;
+    font-size: 0.813rem;
+  }
+  .board-view li.contents {
+    padding: 30px 0;
+    font-size: 0.813rem;
+    line-height: 1.7em;
+  }
+  .board-btns {
+    border-top: solid 1px #cfded8;
+    padding-top: 10px;
+    text-align: right;
+    margin-bottom: 50px;
+  }
+  .content-wrapper .container {
+    max-width: 1200px;
+    border: 0;
+    min-width: 320px;
+    padding: 30px 0;
+  }
+  input[type="button"].btn-gray, input[type="button"].btn-gray:hover {
+    background: #f2f5f9;
+    border-color: #d9ded9;
+    color: #000;
+  }
+  input[type="button"], input[type="button"]:hover, input[type="submit"], input[type="submit"]:hover {
+    background: #646464;
+    font-size: 0.875rem;
+    box-shadow: none;
+    text-shadow: none;
+    border-radius: 3px;
+    font-family: "Nanum Gothic";
+  }
+  li{
+    list-style: none;
+  }
+  .board-list .thead {
+    border-top: solid 2px #646464;
+    border-bottom: solid 1px #f1f1f1;
+    background: #f8f8f8;
+    font-size: 0.875rem;
+    padding: 20px 0;
+    text-align: center;
+  }
+  * {
+    font-family: "Nanum Gothic","Open Sans";
+  }
+  .paging {
+    padding: 40px 0;
+    text-align: center;
+  }
+  * {
+    font-family: "Nanum Gothic","Open Sans";
+  }
+  * {
+    box-sizing: border-box;
+  }
+  .paging > a {
+    display: inline-block;
+    min-width: 30px;
+    line-height: 28px;
+    border: solid 1px #dad6d5;
+    text-align: center;
+    font-size: 0.750em;
+    color: #666;
+  }
+  .board-list .tbody span.title {
+    text-align: left;
+    padding: 0 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .board-list span.date {
+    width: 15%;
+  }
+  .board-list span {
+    display: inline-block;
+    float: left;
+    text-align: center;
+    box-sizing: border-box;
+  }
+  .board-list span.title {
+    width: 65%;
+  }
+  .board-list span {
+    display: inline-block;
+    float: left;
+  }
+  .board-list span.no {
+    width: 10%;
+  }
+  .board-list .tbody span.title > a {
+    color: #333;
+  }
+  a, a:visited {
+    color: #0079bc;
+    font: inherit;
+    text-decoration: none;
+    transition: all 0.1s linear 0s;
+  }
+  .board-search-box {
+    text-align: right;
+    margin-bottom: 10px;
+    margin-top: 50px;
+    position: relative;
+  }
+  #search_con{
+    height: 35px;
+  }
+  .board-list{
+
+  }
+  .board-list .tbody {
+    border-bottom: solid 1px #f1f1f1;
+    text-align: center;
+    font-size: 0.875rem;
+    padding: 21px 0;
+  }
+  .paging > a {
+    display: inline-block;
+    min-width: 30px;
+    line-height: 28px;
+    border: solid 1px #dad6d5;
+    text-align: center;
+    font-size: 0.750em;
+    color: #666;
+  }
+  .paging > a.prev, .paging > a.first, .paging > a.next, .paging > a.last {
+    text-indent: -999em;
+    position: relative;
+  }
+  .paging > a.last:after {
+    content: "";
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px;
+    border-color: transparent transparent transparent #a0a0a0;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -5px 0 0 -5px;
+  }
+  .paging > a.last:before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px;
+    border-color: transparent transparent transparent #a0a0a0;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -5px 0 0 2px;
+  }
+  .paging > a.first:before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px;
+    border-color: transparent #a0a0a0 transparent transparent;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -5px 0 0 -12px;
+  }
+  .paging > a.first:after {
+    content: "";
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px;
+    border-color: transparent #a0a0a0 transparent transparent;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -5px 0 0 -5px;
+  }
+  .paging > a.next:before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px;
+    border-color: transparent transparent transparent #a0a0a0;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -5px 0 0 -2px;
+  }
+  .paging > a.prev:before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px;
+    border-color: transparent #a0a0a0 transparent transparent;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -5px 0 0 -8px;
+  }
+  .board-list .tbody .title a i {
+    font-weight: bold;
+    font-style: normal;
+  }
+</style>
 <section class="container">
-    <h2 title="${page_title}" id="main">${page_title}</h2>
-    <!-- [s] board list -->
-    <section class="board-search-box" style="margin-top:0;">
-        <select id="search_con" title="검색 조건 선택">
-            <option value="" title="전체">- 전체 -</option>
-            <option value="title" title="제목">- 제목 -</option>
-        </select>
-        <input type="text" id="search_search" onkeydown="onKeyDown()" aria-label="검색어 입력" title="검색어 입력">
-        <input type="button" id="search" value="검색" title="검색" aria-label="검색">
-        <input type="hidden" id="all_pages" value="0">
-        <input type="hidden" id="curr_page" value="${curr_page if curr_page else '1'}">
-    </section>
-    <section class="board-list">
-        <ul>
-            <li class="thead">
-                <span class="no" title="번호">번호</span>
-                <span class="title" title="제목">제목</span>
-                <span class="date" title="날짜">날짜</span>
-            </li>
+  <h2 title="${page_title}" id="main">${page_title}</h2>
+  <!-- [s] board list -->
+  <section class="board-search-box" style="margin-top:0;">
+    <select id="search_con" title="검색 조건 선택">
+      <option value="" title="전체">- 전체 -</option>
+      <option value="title" title="제목">- 제목 -</option>
+    </select>
+    <input type="text" id="search_search" onkeydown="onKeyDown()" aria-label="검색어 입력" title="검색어 입력">
+    <input type="button" id="search" value="검색" title="검색" aria-label="검색">
+    <input type="hidden" id="all_pages" value="0">
+    <input type="hidden" id="curr_page" value="${curr_page if curr_page else '1'}">
+  </section>
+  <section class="board-list">
+    <ul>
+      <li class="thead">
+        <span class="no" title="번호">번호</span>
+        <span class="title" title="제목">제목</span>
+        <span class="date" title="날짜">날짜</span>
+      </li>
 
-            <div id="tbody"></div>
-        </ul>
+      <div id="tbody"></div>
+    </ul>
 
-        <div id="paging" class="paging"></div>
-    </section>
-    <!-- [e] board list -->
+    <div id="paging" class="paging"></div>
+  </section>
+  <!-- [e] board list -->
 </section>
 <br/><br/><br/><br/><br/><br/><br/>
 
