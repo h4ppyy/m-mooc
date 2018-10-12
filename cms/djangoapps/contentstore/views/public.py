@@ -77,10 +77,13 @@ def login_page(request):
         }
     )
 
-
 def howitworks(request):
     "Proxy view"
+    #sso module for mobis
+    #user_sso_process(request)
 
+
+    #def user_sso_process(request):
     """
     user SSO(Single Sign On) Checking
     """
@@ -204,7 +207,7 @@ def howitworks(request):
                         #q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings=devstack_docker create_user -p edx -e {email} -u {username}""".format(email=_email, username=seqid)
                         #q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings=devstack_docker create_user -p edx -e {email} -u {username}""".format(email='mih2@example.com', username='mih2')
                         #native
-                        q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings=aws create_user -p {pw} -e {email} -u {username}""".format(pw=_uuid, email=_email, username=seqid)
+                        q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings aws create_user -p {pw} -e {email} -u {username}""".format(pw=_uuid, email=_email, username=seqid)
                         #print("shell running: ", q)
                         logging.info('shell running: %s', q)
                         os.system(q)
@@ -246,6 +249,23 @@ def howitworks(request):
         return redirect('/home/')
     else:
         return render_to_response('howitworks.html', {})
+
+
+def usekey_check(ukey):
+    dt = datetime.datetime.now()
+    pkey = '%s%s%s%s%s' % (
+    '{0:04d}'.format(dt.year), '{0:02d}'.format(dt.month), '{0:02d}'.format(dt.day), '{0:02d}'.format(dt.day),
+    '{0:02d}'.format(datetime.datetime.today().weekday() + 2))
+
+    msg = ''
+    if ukey == pkey:
+        msg = """match in[{ukey}], out[{pkey}]""".format(ukey=ukey, pkey=pkey)
+        logging.info('usekey_check: %s', msg)
+        return True
+    else:
+        msg = """not match in[{ukey}], out[{pkey}]""".format(ukey=ukey, pkey=pkey)
+        logging.info('usekey_check: %s', msg)
+        return False
 
 def user_ora_exists_check(seqid):
 
@@ -364,84 +384,6 @@ def user_info_update(user_nm, email):
             cur.close()
         if con is not None:
             con.close()
-
-def getSession(request):
-    #using id check session
-    session_exists_check = {}
-    session_exists_check['status'] = 'false'
-    if request.user.is_authenticated:
-        session_exists_check['status'] = 'true'
-    #print "--> session_exists_check:", session_exists_check
-    return JsonResponse(session_exists_check)
-
-def getLoginAuthCheck(request):
-    auth_check = {}
-    try:
-        _str = request.GET.get('cmsstr')
-
-        if _str == None:
-            logging.info('getLoginAuthCheck: cmsstr None error %s', 'getLoginAuthCheck method checking')
-        else:
-            _type = '2'
-            if _type=='1':
-                o1 = User.objects.filter(username=_str)
-            elif _type=='2':
-                o1 = User.objects.filter(email=_str)
-
-            if o1 == None:
-                auth_check['status'] = 'false'
-            else:
-                if len(o1) == 0:
-                    auth_check['status'] = 'false'
-                else:
-                    auth_check['status'] = 'true'
-    except Exception as e:
-        logging.info("getLoginAuthCheck: error: %s", e)
-        pass
-
-    logging.info("getLoginAuthCheck: _type: %s, _str: %s", _type, _str)
-    logging.info("getLoginAuthCheck: status : %s", auth_check)
-
-    return JsonResponse(auth_check)
-
-def getSeed128(request):
-    decryption_data = {}
-    decryption_data['status'] = 'false'
-    decryption_data['decstr'] = ''
-    decryption_data['error'] = 'fail'
-
-    usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
-    memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
-
-    if usekey == None or memid == None:
-        logging.info('getSeed128: usekey None error %s', 'getSeed128 method checking')
-    else:
-        usekey = usekey.replace(' ', '+')
-        memid = memid.replace(' ', '+')
-
-        chk = False
-        if usekey != None and memid != None:
-            if len(usekey) == 24 and len(memid) == 24:
-                chk = True
-            else:
-                decryption_data['error'] = 'length error'
-
-            if chk:
-                seed128 = kotechseed128.SEED()
-                decdata = seed128.make_usekey_decryption(1, usekey, memid)
-
-                if decdata == None:
-                    logging.info('edx-platform/lms/djangoapps/branding/views.py - getSeed128 decryption error: %s','checking please')
-                    decryption_data['error'] = 'not found'
-                else:
-                    _deckey = decdata[0]    # usekey
-                    _decstr = decdata[1]    # emp_no
-                    _decstr = _decstr.replace('\x00', '')
-                    decryption_data['status'] = 'true'
-                    decryption_data['decstr'] = _decstr
-                    decryption_data['error'] = 'success'
-
-    return JsonResponse(decryption_data)
 
 @waffle_switch('{}.{}'.format(waffle.WAFFLE_NAMESPACE, waffle.ENABLE_ACCESSIBILITY_POLICY_PAGE))
 def accessibility(request):

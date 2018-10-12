@@ -635,9 +635,11 @@ def getLoginAPI(request):
     json_return['is_staff'] = '0'
     json_return['status'] = 'fail'
 
+    #test
+    usekey = 'MjAxODEwMTIxMjA2AAAAAA=='
     try:
         logging.info('Step %s', 'views.py getLoginAPI method')
-        usekey = request.session['usekey']
+        #usekey = request.session['usekey']
         #memid = request.POST.get('memid')
         memid = request.GET.get('memid')
     except:
