@@ -8,7 +8,7 @@
 
 body {
     /*background: #242c38;*/
-    font-family: 'Roboto';
+    /*font-family: 'Roboto';*/
     /*font-size: 62.5%;*/
     font-size: 1rem;
 }
@@ -33,6 +33,10 @@ h1 {
     margin-top: 30px;
     font-weight: 300;
     font-size: 2.4em;
+}
+
+span{
+     font-family: "Open Sans" !important;
 }
 
 /** ---------------------------------------
@@ -288,7 +292,7 @@ h1 {
 }
 
 .notice_main > .notice_list > ul > li > .notice_stxt_area {
-    display: flex;
+    /*display: flex;*/
     align-items: stretch;
 }
 
@@ -297,7 +301,7 @@ h1 {
     text-overflow: ellipsis;
     width: 88%;
     overflow: hidden;
-    display: inline-block;
+    /*display: inline-block;*/
 }
 
 .notice_main > .notice_list > ul > li > .notice_stxt_area > .notice_stxt > a {
@@ -518,6 +522,7 @@ a.slide_btn {
 
 ol.g_menu li.item a{
     color: #003655;
+    text-decoration: none;
 }
 
 .nav-item img.user-image-frame {
@@ -580,4 +585,9 @@ body.view-in-course .container{
 
 .container.about{
     padding: 20px 30px 15px;
+}
+
+ol.g_menu li.item a:hover{
+    color: #289bff;
+    text-decoration: none;
 }
