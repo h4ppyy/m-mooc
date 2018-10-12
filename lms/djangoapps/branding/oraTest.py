@@ -22,49 +22,99 @@ conn.close()
 from __future__ import print_function
 
 import cx_Oracle
+import os
+import uuid
 
-print("Oracle 11g Connect test start...:")
+if 1==2:
+    q = ". /edx/app/edxapp/edx-platform/lms/djangoapps/branding/insert_member.sh edx mih5@mobis.co.kr mih5nm"
+    status = os.system(q)
+    print(status)
 
-# Connect as user "hr" with password "welcome" to the "oraclepdb" service running on this computer.
-#connection = cx_Oracle.connect("scott", "tiger", "localhost/xe")
-connection = cx_Oracle.connect("IMIF_SWA", "Swa$2018", "10.10.163.73:1521/imdb")
-print("    Version:", connection.version)
-print("  User Name:", connection.username)
-print("Connect TNS:", connection.tnsentry)
+if 1==2:
+    print("Oracle 11g Connect test start...:")
 
-cursor = connection.cursor()
-#cursor.execute("select count(*) from vw_history_rsum")
-#for cnt in cursor:
-#    print("Values:", cnt)
+    # Connect as user "hr" with password "welcome" to the "oraclepdb" service running on this computer.
+    #connection = cx_Oracle.connect("scott", "tiger", "localhost/xe")
+    connection = cx_Oracle.connect("IMIF_SWA", "Swa$2018", "10.10.163.73:1521/imdb")
+    print("    Version:", connection.version)
+    print("  User Name:", connection.username)
+    print("Connect TNS:", connection.tnsentry)
 
-#cursor.execute("select * from wfuser.vw_history_rsum")
-#cursor.execute("select * from WFUSER.VW_HISTORY_SWA")
-#cursor.execute("select 1+1  from dual")
-#cursor.execute("select * from tab")
-#cursor.execute("select * from tab")
+    cursor = connection.cursor()
+    #cursor.execute("select count(*) from vw_history_rsum")
+    #for cnt in cursor:
+    #    print("Values:", cnt)
 
-#cursor.execute("select USER_ID ,USER_NM ,DUTY_CD ,DUTY_NM_HOME ,DEPT_CD ,DEPT_NM ,USER_GRADE_CODE ,JW_NM_HOME from WFUSER.VW_HISTORY_SWA")
+    #cursor.execute("select USER_ID ,USER_NM ,DUTY_CD ,DUTY_NM_HOME ,DEPT_CD ,DEPT_NM ,USER_GRADE_CODE ,JW_NM_HOME from WFUSER.VW_HISTORY_SWA")
 
-sql = """
- SELECT
-         USER_ID
-        ,NVL(USER_NM,\'\') USER_NM
-        ,DUTY_CD
-        ,DUTY_NM_HOME
-        ,DEPT_CD
-        ,NVL(DEPT_NM,\'\') DEPT_NM
-        ,USER_GRADE_CODE
-        ,NVL(JW_NM_HOME,\'\') JW_NM_HOME
-    FROM WFUSER.VW_HISTORY_SWA
-    WHERE USER_ID = \'1624810\'
-    AND   ROWNUM = 1
-   """
+    sql = """
+         SELECT
+             USER_ID
+            ,NVL(USER_NM,\'\') USER_NM
+            ,DUTY_CD
+            ,DUTY_NM_HOME
+            ,DEPT_CD
+            ,NVL(DEPT_NM,\'\') DEPT_NM
+            ,USER_GRADE_CODE
+            ,NVL(JW_NM_HOME,\'\') JW_NM_HOME
+        FROM WFUSER.VW_HISTORY_SWA
+        WHERE USER_ID = \'1624810\'
+        AND   ROWNUM = 1
+       """
 
-cursor.execute(sql)
+    cursor.execute(sql)
 
-for dt in cursor:
-    print("data:", dt)
+    for dt in cursor:
+        print("data:", dt)
 
-cursor.close()
-connection.close()
+    cursor.close()
+    connection.close()
+
+if 1==1:
+    print("Oracle 11g Connect test start...:")
+
+    # Connect as user "hr" with password "welcome" to the "oraclepdb" service running on this computer.
+    #connection = cx_Oracle.connect("scott", "tiger", "localhost/xe")
+    connection = cx_Oracle.connect("IMIF_SWA", "Swa$2018", "10.10.163.73:1521/imdb")
+    print("    Version:", connection.version)
+    print("  User Name:", connection.username)
+    print("Connect TNS:", connection.tnsentry)
+
+    cursor = connection.cursor()
+    #cursor.execute("select count(*) from vw_history_rsum")
+    #for cnt in cursor:
+    #    print("Values:", cnt)
+
+    #cursor.execute("select USER_ID ,USER_NM ,DUTY_CD ,DUTY_NM_HOME ,DEPT_CD ,DEPT_NM ,USER_GRADE_CODE ,JW_NM_HOME from WFUSER.VW_HISTORY_SWA")
+
+    sql = """
+         SELECT
+             USER_ID
+            ,NVL(USER_NM,\'\') USER_NM
+            ,DUTY_CD
+            ,DUTY_NM_HOME
+            ,DEPT_CD
+            ,NVL(DEPT_NM,\'\') DEPT_NM
+            ,USER_GRADE_CODE
+            ,NVL(JW_NM_HOME,\'\') JW_NM_HOME
+        FROM WFUSER.VW_HISTORY_SWA
+       """
+
+    cursor.execute(sql)
+
+    f = open('bat.sh', 'w')
+    for dt in cursor:
+        print("data:", dt[0], dt[1], dt[0]+"@mobis.co.kr")
+        # 32 bytes password
+        _uuid = uuid.uuid4().__str__()
+        _uuid = _uuid.replace('-', '')
+
+        q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings aws create_user -p {uid} -e {email} -u {username}""".format(uid=_uuid, email=dt[0]+"@mobis.co.kr", username=dt[0])
+        f.write(q)
+        f.write('\n')
+
+    f.close()
+
+    cursor.close()
+    connection.close()
 

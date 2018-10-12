@@ -31,17 +31,22 @@ import requests
 from django.contrib.auth import login as django_login
 from django.contrib.auth.models import User
 import hashlib
+import subprocess
+import datetime
 
 log = logging.getLogger(__name__)
 
 
-#@ensure_csrf_cookie
-#@transaction.non_atomic_requests
 #@cache_if_anonymous()
+@ensure_csrf_cookie
+@transaction.non_atomic_requests
 def index(request):
     """
     Redirects to main page -- info page if user authenticated, or marketing if not
     """
+    #sso module for mobis
+    #user_sso_process(request)
+    #def user_sso_process(request):
 
     """
     user SSO(Single Sign On) Checking
@@ -59,17 +64,11 @@ def index(request):
     upk = ['', '']
 
     user_nm = u''
-    #_email = "staff@example.com"
-    #user = User.objects.get(email=_email)
-    #user.backend = 'ratelimitbackend.backends.RateLimitModelBackend'
-    #django_login(request, user)
 
-    #request.session['mobis_usekey'] = ''
-    #request.session['mobis_memid'] = ''
-
-    logging.info('------------------------ Hello : %s', 'test...........')
-
+    logging.info('login SSO check : %s', 'start')
+    logging.info('---------- %s ---------------', 'step 1')
     if not request.user.is_authenticated:
+        logging.info('---------- %s ---------------', 'step 2')
         try:
 	    if 1 == 1:
                 usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
@@ -90,15 +89,29 @@ def index(request):
                 if not chk:
                     return redirect(MOBIS_BASE_URL)
 
-                seed128 = kotechseed128.SEED()
-
+                try:
+                    seed128 = kotechseed128.SEED()
+                except:
+                    logging.info('kotechseed128 error %s', 'views.py checking')
+                    return redirect(MOBIS_BASE_URL)
+                    
+                logging.info('---------- session check start %s ---------------', 'views.py checking')
                 #base64
                 #print ('usekey:', usekey, 'memid:', memid)
-
-                request.session['mobis_usekey'] = usekey
-                request.session['mobis_memid'] = memid
-
-                decdata = seed128.make_usekey_decryption(1, usekey, memid)
+                try:
+                    request.session['mobis_usekey'] = usekey
+                    request.session['mobis_memid'] = memid
+                except:
+                    logging.info('request.session error #1 %s', 'views.py checking')
+                    request.session['mobis_usekey'] = ''
+                    request.session['mobis_memid'] = ''
+                    return redirect(MOBIS_BASE_URL)
+                  
+                try:
+                    decdata = seed128.make_usekey_decryption(1, usekey, memid)
+                except:
+                    logging.info('make_usekey_decryption error %s', 'views.py checking')
+                    return redirect(MOBIS_BASE_URL)
 
                 if decdata == None:
                     #print ('branding/views.py - decryption error')
@@ -109,10 +122,15 @@ def index(request):
                 seqid = decdata[1]    # emp_no
                 seqid = seqid.replace('\x00', '')
 
+                logging.info('Confirm decoding: usekey= %s, memid= %s', seqky, seqid)
+
+                #key matching check
+                if not usekey_check(seqky):
+                    return redirect(MOBIS_BASE_URL)
+
                 # seed encryption
                 if seqid != None:
                     if len(seqid) > 6 and len(seqid) < 17:
-                        chk = True
                         # parameter : user id, fixed length 10 bytes
                         upk = seed128.make_usekey_encryption(1, seqid, seqky)   # upk : usekey
                     else:
@@ -123,6 +141,8 @@ def index(request):
                 payload = {}
                 payload['usedkey'] = upk[0]
                 payload['memID'] = upk[1]
+
+                logging.info('Confirm: usekey= %s, memid= %s', upk[0], upk[1])
 
                 r = requests.get(MOBIS_SSO_CHECK_URL, params=payload)
                 res = r.text.upper()
@@ -167,7 +187,7 @@ def index(request):
                         #devstack
                         #q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings=devstack_docker create_user -p edx -e {email} -u {username}""".format(email='mih2@example.com', username='mih2')
                         #native
-                        q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings=aws create_user -p {pw} -e {email} -u {username}""".format(pw=_uuid, email=_email, username=seqid)
+                        q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings aws create_user -p {pw} -e {email} -u {username}""".format(pw=_uuid, email=_email, username=seqid)
                         #print("shell running: ", q)
                         logging.info('shell running: %s', q)
                         os.system(q)
@@ -182,11 +202,14 @@ def index(request):
 
                     # test
                     try:
+                        logging.info('---------- session check #2 %s ---------------', 'views.py checking')
                         request.session['mobis_usekey'] = request.session.get('mobis_usekey', '')
                         request.session['mobis_memid'] = request.session.get('mobis_memid', '')
                     except KeyError as e:
+                        logging.info('---------- session check #3 %s ---------------', 'views.py checking')
                         request.session['mobis_usekey'] = ''
                         request.session['mobis_memid'] = ''
+                        return redirect(MOBIS_BASE_URL)
 
                     #_email = "staff@example.com"
                     user = User.objects.get(email=_email)
@@ -196,14 +219,72 @@ def index(request):
                 else:
                     return redirect(MOBIS_BASE_URL)
             else:
+                logging.info('---------- session check #4 %s ---------------', 'views.py checking')
                 request.session['mobis_usekey'] = ''
                 request.session['mobis_memid'] = ''
+                return redirect(MOBIS_BASE_URL)
         except Exception as e:
             #print 'error------------->', e
             logging.info('Error: %s', e)
+            logging.info('---------- session check #5 %s ---------------', 'views.py checking')
             request.session['mobis_usekey'] = ''
             request.session['mobis_memid'] = ''
             return redirect(MOBIS_BASE_URL)
+
+        # 작업 후 지울 것
+        # ---------------------------- delete start ------------------------------
+        if 1==2:
+           usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
+           memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
+
+           if usekey == None or memid == None:
+               logging.info('usekey None error %s', 'views.py checking')
+           else:
+	       usekey = usekey.replace(' ', '+')
+	       memid = memid.replace(' ', '+')
+
+               if memid.find("mih") > -1:
+                   _uuid = 'edx'
+                   _email = memid + '@example.com'
+                   seqid = memid
+                   q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings aws create_user -p {pw} -e {email} -u {username}""".format(pw=_uuid, email=_email, username=seqid)
+                   #print("shell running: ", q)
+                   q = ". /edx/app/edxapp/edx-platform/lms/djangoapps/branding/insert_member.sh"
+
+                   logging.info('shell running: %s', q)
+                   #try:
+                       #q = ". /edx/app/edxapp/edx-platform/lms/djangoapps/branding/insert_member.sh"
+                       #q = "/edx/app/edxapp/edx-platform/lms/djangoapps/branding/insert_member.sh"
+                       #return_code = subprocess.call(q, shell=True)
+                   #except OSError as e:
+                   #    logging.info('subprocess.call OSError: %s', e)
+
+                   status = os.system(q)
+                   logging.info('os.system: %s', status)
+
+                   #logging.info('subprocess.call: %s', return_code)
+                   #os.system(q)
+
+                   # mysql connect
+                   # auth_user update
+                   user_info_update(user_nm, _email)
+                   try:
+                       request.session['mobis_usekey'] = request.session.get('mobis_usekey', '')
+                       request.session['mobis_memid'] = request.session.get('mobis_memid', '')
+                   except KeyError as e:
+                       logging.info('request.session : %s', 'error #2')
+                       request.session['mobis_usekey'] = ''
+                       request.session['mobis_memid'] = ''
+                       return redirect(MOBIS_BASE_URL)
+
+                   #_email = "staff@example.com"
+                   #try:
+                   #    user = User.objects.get(email=_email)
+                   #    user.backend = 'ratelimitbackend.backends.RateLimitModelBackend'
+                   #    django_login(request, user)
+                   #except DoesNotExist as e:
+                   #    logging.info('DoesNotExist error: %s', e)
+        # ---------------------------- delete end ------------------------------
 
     if request.user.is_authenticated:
         # Only redirect to dashboard if user has
@@ -248,6 +329,22 @@ def index(request):
     #  marketing and edge are enabled
     return student.views.index(request, user=request.user)
 
+
+def usekey_check(ukey):
+    dt = datetime.datetime.now()
+    pkey = '%s%s%s%s%s' % (
+    '{0:04d}'.format(dt.year), '{0:02d}'.format(dt.month), '{0:02d}'.format(dt.day), '{0:02d}'.format(dt.day),
+    '{0:02d}'.format(datetime.datetime.today().weekday() + 2))
+
+    msg = ''
+    if ukey == pkey:
+        msg = """match in[{ukey}], out[{pkey}]""".format(ukey=ukey, pkey=pkey)
+        logging.info('usekey_check: %s', msg)
+        return True 
+    else:
+        msg = """not match in[{ukey}], out[{pkey}]""".format(ukey=ukey, pkey=pkey)
+        logging.info('usekey_check: %s', msg)
+        return False
 
 def user_ora_exists_check(seqid):
 
@@ -323,14 +420,12 @@ def user_info_update(user_nm, email):
     #                 charset='utf8')
 
     con = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
-
     try:
         # Connection 으로부터 Cursor 생성
         cur = con.cursor()
 
         # SQL문 실행
         user_id = 0
-
         sql = """
               select id from auth_user where email = \'{email}\'
               """.format(email=email)
@@ -355,11 +450,9 @@ def user_info_update(user_nm, email):
         else:
             #print "0 record(s) affected"
             logging.info("%s record(s) affected", '0')
-
     except mdb.Error, e:
         #print e
         logging.info('MySQL: %s', e)
-
     finally:
         # Connection 닫기
         if cur is not None:
@@ -367,17 +460,9 @@ def user_info_update(user_nm, email):
         if con is not None:
             con.close()
 
-def getSession(request):
-    #using id check session
-    session_exists_check = {}
-    session_exists_check['status'] = 'false'
-    if request.user.is_authenticated:
-        session_exists_check['status'] = 'true'
-    #print "--> session_exists_check:", session_exists_check
-    return JsonResponse(session_exists_check)
-
 def getLoginAuthCheck(request):
     auth_check = {}
+    auth_check['status'] = 'false'
     try:
         _str = request.GET.get('cmsstr')
 
@@ -397,53 +482,282 @@ def getLoginAuthCheck(request):
                     auth_check['status'] = 'false'
                 else:
                     auth_check['status'] = 'true'
+
+        logging.info("getLoginAuthCheck: _type: %s, _str: %s", _type, _str)
+        logging.info("getLoginAuthCheck: status : %s", auth_check)
+
+        return JsonResponse(auth_check)
+
     except Exception as e:
         logging.info("getLoginAuthCheck: error: %s", e)
-        pass
+        return JsonResponse(auth_check)
 
-    logging.info("getLoginAuthCheck: _type: %s, _str: %s", _type, _str)
-    logging.info("getLoginAuthCheck: status : %s", auth_check)
 
-    return JsonResponse(auth_check)
+def getSession(request):
+    #using id check session
+    json_return = {}
+    json_return['status'] = 'false'
+    if request.user.is_authenticated:
+        json_return['status'] = 'true'
+    return JsonResponse(json_return)
+
+def getAuthCheck(request):
+    json_return = {}
+    json_return['status'] = 'false'
+    cmsstr = request.GET.get('cmsstr')
+
+    try:
+        if cmsstr == None:
+            logging.info('cmsstr None error %s', 'views.py getAuthCheck method')
+            json_return['status'] = 'false'
+        else:
+            o1 = User.objects.filter(email=cmsstr)
+            if o1 == None:
+                json_return['status'] = 'false'
+            else:
+                if len(o1) == 0:
+                    json_return['status'] = 'false'
+                else:
+                    json_return['status'] = 'true'
+        return JsonResponse(json_return)
+    except:
+        json_return['status'] = 'false'
+        return JsonResponse(json_return)
+
+def getAuthUserCheck(request):
+    json_return = {}
+    json_return['status'] = 'false'
+    cmsstr = request.GET.get('cmsstr')
+
+    try:
+        if cmsstr == None:
+            logging.info('cmsstr None error %s', 'views.py getAuthUserCheck method')
+            json_return['status'] = 'false'
+        else:
+            o1 = User.objects.filter(username=cmsstr)
+            if o1 == None:
+                json_return['status'] = 'false'
+            else:
+                if len(o1) == 0:
+                    json_return['status'] = 'false'
+                else:
+                    json_return['status'] = 'true'
+
+        return JsonResponse(json_return)
+    except:
+        json_return['status'] = 'false'
+        return JsonResponse(json_return)
+
+def getAuthEmailCheck(request):
+    json_return = {}
+    json_return['status'] = 'false'
+    cmsstr = request.GET.get('cmsstr')
+
+    try:
+        if cmsstr == None:
+            logging.info('cmsstr None error %s', 'views.py getAuthEmailCheck method')
+            json_return['status'] = 'false'
+        else:
+            o1 = User.objects.filter(email=cmsstr)
+            if o1 == None:
+                json_return['status'] = 'false'
+            else:
+                if len(o1) == 0:
+                    json_return['status'] = 'false'
+                else:
+                    json_return['status'] = 'true'
+
+        return JsonResponse(json_return)
+    except:
+        json_return['status'] = 'false'
+        return JsonResponse(json_return)
 
 def getSeed128(request):
-    decryption_data = {}
-    decryption_data['status'] = 'false'
-    decryption_data['decstr'] = ''
-    decryption_data['error'] = 'fail'
+    # -----------------------------------------------------------------------
+    #using id check session
+    json_return = {}
+    json_return['status'] = 'false'
+    json_return['decstr'] = ''
+    json_return['error'] = 'fail'
 
-    usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
-    memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
+    usekey = request.GET.get('usekey')
+    memid = request.GET.get('memid')
 
-    if usekey == None or memid == None:
-        logging.info('getSeed128: usekey None error %s', 'getSeed128 method checking')
-    else:
-        usekey = usekey.replace(' ', '+')
-        memid = memid.replace(' ', '+')
+    try:
+        if usekey == None or memid == None:
+            logging.info('usekey None error %s', 'views.py getSeed128 method')
+            json_return['decstr'] = 'parameter'
+            json_return['error'] = 'fail'
+        else:
+            usekey = usekey.replace(' ', '+')
+            memid = memid.replace(' ', '+')
 
-        chk = False
-        if usekey != None and memid != None:
-            if len(usekey) == 24 and len(memid) == 24:
-                chk = True
-            else:
-                decryption_data['error'] = 'length error'
+            if usekey != None and memid != None:
+                if len(usekey) == 24 and len(memid) == 24:
+                    try:
+                        seed128 = kotechseed128.SEED()
+                        decdata = seed128.make_usekey_decryption(1, usekey, memid)
+                    except:
+                        logging.info('except error %s', 'views.py getSeed128 method - make_usekey_decryption')
+                        return JsonResponse(json_return)
 
-            if chk:
-                seed128 = kotechseed128.SEED()
-                decdata = seed128.make_usekey_decryption(1, usekey, memid)
+                    if decdata == None:
+                        json_return['decstr'] = ''
+                        json_return['error'] = 'fail'
+                    else:
+                        seqky = decdata[0]    # usekey
+                        seqid = decdata[1]    # emp_no
+                        seqid = seqid.replace('\x00', '')
 
-                if decdata == None:
-                    logging.info('edx-platform/lms/djangoapps/branding/views.py - getSeed128 decryption error: %s','checking please')
-                    decryption_data['error'] = 'not found'
+                        json_return['status'] = 'true'
+                        json_return['decstr'] = seqid
+                        json_return['error'] = 'success'
                 else:
-                    _deckey = decdata[0]    # usekey
-                    _decstr = decdata[1]    # emp_no
-                    _decstr = _decstr.replace('\x00', '')
-                    decryption_data['status'] = 'true'
-                    decryption_data['decstr'] = _decstr
-                    decryption_data['error'] = 'success'
+                    json_return['decstr'] = ''
+                    json_return['error'] = 'length error'
+            else:
+                json_return['decstr'] = 'parameter'
+                json_return['error'] = 'fail'
 
-    return JsonResponse(decryption_data)
+        logging.info('finish %s', 'views.py getSeed128 method')
+        return JsonResponse(json_return)
+    except:
+        json_return['decstr'] = 'internal error'
+        json_return['error'] = 'fail'
+        return JsonResponse(json_return)
+    # -----------------------------------------------------------------------
+
+
+def getLoginAPI(request):
+    json_return = {}
+    json_return['memid'] = ''
+    json_return['email'] = ''
+    json_return['is_staff'] = '0'
+    json_return['status'] = 'fail'
+
+    try:
+        logging.info('Step %s', 'views.py getLoginAPI method')
+        usekey = request.session['usekey']
+        #memid = request.POST.get('memid')
+        memid = request.GET.get('memid')
+    except:
+        logging.info('Error %s', 'views.py getLoginAPI method')
+        return JsonResponse(json_return)
+
+    #decrypto
+    try:
+        usernm = getSeedDecData(usekey, memid)
+        json_return['memid'] = usernm
+        json_return['email'] = usernm + '@mobis.co.kr'
+    except:
+        logging.info('getSeedDecData Call Error %s', 'views.py getLoginAPI method')
+        return JsonResponse(json_return)
+
+    #mysql get data
+    try:
+        teacher = getLoginAPIdecrypto(usernm)
+        json_return['is_staff'] = teacher
+        json_return['status'] = 'success'
+    except:
+        logging.info('getLoginAPIdecrypto Call Error %s', 'views.py getLoginAPI method')
+        return JsonResponse(json_return)
+
+    return JsonResponse(json_return)
+
+
+def getLoginAPIdecrypto(usernm):
+    import MySQLdb as mdb
+    con = None
+    # MySQL Connection 연결
+    con = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
+    try:
+        # Connection 으로부터 Cursor 생성
+        cur = con.cursor()
+
+        # SQL문 실행
+        sql = """
+            select
+                    case when is_staff = '1' then '1'
+                        else 
+                            case when is_staff = '0' and cnt1 = '1' then '1'
+                                else
+                                    case when is_staff = '0' and cnt2 = '1' then '2'
+                                            else
+                                                '0'
+                                    end
+                            end
+                       end is_staff
+            from (
+                        select 
+                                b.is_staff is_staff
+                                ,case when role = 'staff' and count(*) > 0 then '1' else '0' end  cnt1
+                                ,case when role = 'instructor' and count(*) > 0 then '1' else '0' end cnt2
+                        from student_courseaccessrole a 
+                                   left outer join (
+                                       select id, is_staff from auth_user
+                                       where username = \'{username}\'
+                                       ) b on a.user_id = b.id
+                        where a.user_id = b.id
+            ) tb
+        """.format(username=usernm)
+
+        cur.execute(sql)
+
+        # 데이타 Fetch
+        rows = cur.fetchall()
+        exists_flag = False
+        for row in rows:
+            teacher_count = row[0]
+            exists_flag = True
+            break
+
+        if exists_flag:
+            logging.info("Teacher count %d record(s) affected", teacher_count)
+        else:
+            logging.info("Teacher count %d record(s) affected", 0)
+        return teacher_count
+    except mdb.Error, e:
+        logging.info('getLoginAPIdecrypto method MySQL: %s', e)
+        return '0'
+    finally:
+        # Connection 닫기
+        if cur is not None:
+            cur.close()
+        if con is not None:
+            con.close()
+
+def getSeedDecData(usekey, memid):
+    try:
+        if usekey == None or memid == None:
+            logging.info('usekey None error %s', 'views.py getSeed128 method')
+        else:
+            usekey = usekey.replace(' ', '+')
+            memid = memid.replace(' ', '+')
+            if usekey != None and memid != None:
+                if len(usekey) == 24 and len(memid) == 24:
+                    try:
+                        seed128 = kotechseed128.SEED()
+                        decdata = seed128.make_usekey_decryption(1, usekey, memid)
+                    except:
+                        logging.info('kotechseed128 and seed128.make_usekey_decryption error %s', 'getSeedDecData method')
+                        return ''
+
+                    if decdata == None:
+                        return ''
+                    else:
+                        seqky = decdata[0]    # usekey
+                        seqid = decdata[1]    # emp_no
+                        seqid = seqid.replace('\x00', '')
+                        return seqid
+                else:
+                    return ''
+            else:
+                return ''
+
+        logging.info('finish %s', 'getSeedDecData method')
+        return JsonResponse(json_return)
+    except:
+        return ''
 
 @ensure_csrf_cookie
 @cache_if_anonymous()
