@@ -113,6 +113,8 @@ def howitworks(request):
             if 1 == 1:
                 usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
                 memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
+                #usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
+                #memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
 
                 if usekey == None or memid == None:
                     logging.info('usekey None: %s', 'public.py checking')
