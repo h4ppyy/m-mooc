@@ -518,40 +518,6 @@ def getSeed128(request):
         return JsonResponse(json_return)
     # -----------------------------------------------------------------------
 
-def getLoginAPI(request):
-    json_return = {}
-    json_return['memid'] = ''
-    json_return['email'] = ''
-    json_return['is_staff'] = '0'
-    json_return['status'] = 'fail'
-    try:
-        logging.info('Step %s', 'views.py getLoginAPI method')
-        #usekey = request.session['usekey'] 
-        #1945081504
-        usekey = 'MTk0NTA4MTUxNTA0AAAAAA=='
-        #memid = request.POST.get('memid')
-        memid = request.GET.get('memid')
-    except:
-        logging.info('Error %s', 'views.py getLoginAPI method')
-        return JsonResponse(json_return)
-    #decrypto
-    try:
-        usernm = getSeedDecData(usekey, memid)
-        json_return['memid'] = usernm
-        json_return['email'] = usernm + '@mobis.co.kr'
-    except:
-        logging.info('getSeedDecData Call Error %s', 'views.py getLoginAPI method')
-        return JsonResponse(json_return)
-     #mysql get data
-    try:
-        teacher = getLoginAPIdecrypto(usernm)
-        json_return['is_staff'] = teacher
-        json_return['status'] = 'success'
-    except:
-        logging.info('getLoginAPIdecrypto Call Error %s', 'views.py getLoginAPI method')
-        return JsonResponse(json_return)
-    return JsonResponse(json_return)
-
 def getLoginAPIdecrypto(usernm):
     import MySQLdb as mdb
     con = None
@@ -609,36 +575,6 @@ def getLoginAPIdecrypto(usernm):
         if con is not None:
             con.close()
 
-def getSeedDecData(usekey, memid):
-    try:
-        if usekey == None or memid == None:
-            logging.info('usekey None error %s', 'views.py getSeed128 method')
-        else:
-            usekey = usekey.replace(' ', '+')
-            memid = memid.replace(' ', '+')
-            if usekey != None and memid != None:
-                if len(usekey) == 24 and len(memid) == 24:
-                    try:
-                        seed128 = kotechseed128.SEED()
-                        decdata = seed128.make_usekey_decryption(1, usekey, memid)
-                    except:
-                        logging.info('kotechseed128 and seed128.make_usekey_decryption error %s', 'getSeedDecData method')
-                        return ''
-                    if decdata == None:
-                        return ''
-                    else:
-                        seqky = decdata[0]    # usekey
-                        seqid = decdata[1]    # emp_no
-                        seqid = seqid.replace('\x00', '')
-                        return seqid
-                else:
-                    return ''
-            else:
-                return ''
-        logging.info('finish %s', 'getSeedDecData method')
-        return JsonResponse(json_return)
-    except:
-        return ''
 
 def usekey_check(ukey):
     dt = datetime.datetime.now()
@@ -803,141 +739,6 @@ def getLoginAuthCheck(request):
         return JsonResponse(auth_check)
 
 
-def getSession(request):
-    #using id check session
-    json_return = {}
-    json_return['status'] = 'false'
-    if request.user.is_authenticated:
-        json_return['status'] = 'true'
-    return JsonResponse(json_return)
-
-def getAuthCheck(request):
-    json_return = {}
-    json_return['status'] = 'false'
-    cmsstr = request.GET.get('cmsstr')
-
-    try:
-        if cmsstr == None:
-            logging.info('cmsstr None error %s', 'views.py getAuthCheck method')
-            json_return['status'] = 'false'
-        else:
-            o1 = User.objects.filter(email=cmsstr)
-            if o1 == None:
-                json_return['status'] = 'false'
-            else:
-                if len(o1) == 0:
-                    json_return['status'] = 'false'
-                else:
-                    json_return['status'] = 'true'
-        return JsonResponse(json_return)
-    except:
-        json_return['status'] = 'false'
-        return JsonResponse(json_return)
-
-def getAuthUserCheck(request):
-    json_return = {}
-    json_return['status'] = 'false'
-    cmsstr = request.GET.get('cmsstr')
-
-    try:
-        if cmsstr == None:
-            logging.info('cmsstr None error %s', 'views.py getAuthUserCheck method')
-            json_return['status'] = 'false'
-        else:
-            o1 = User.objects.filter(username=cmsstr)
-            if o1 == None:
-                json_return['status'] = 'false'
-            else:
-                if len(o1) == 0:
-                    json_return['status'] = 'false'
-                else:
-                    json_return['status'] = 'true'
-
-        return JsonResponse(json_return)
-    except:
-        json_return['status'] = 'false'
-        return JsonResponse(json_return)
-
-def getAuthEmailCheck(request):
-    json_return = {}
-    json_return['status'] = 'false'
-    cmsstr = request.GET.get('cmsstr')
-
-    try:
-        if cmsstr == None:
-            logging.info('cmsstr None error %s', 'views.py getAuthEmailCheck method')
-            json_return['status'] = 'false'
-        else:
-            o1 = User.objects.filter(email=cmsstr)
-            if o1 == None:
-                json_return['status'] = 'false'
-            else:
-                if len(o1) == 0:
-                    json_return['status'] = 'false'
-                else:
-                    json_return['status'] = 'true'
-
-        return JsonResponse(json_return)
-    except:
-        json_return['status'] = 'false'
-        return JsonResponse(json_return)
-
-def getSeed128(request):
-    # -----------------------------------------------------------------------
-    #using id check session
-    json_return = {}
-    json_return['status'] = 'false'
-    json_return['decstr'] = ''
-    json_return['error'] = 'fail'
-
-    usekey = request.GET.get('usekey')
-    memid = request.GET.get('memid')
-
-    try:
-        if usekey == None or memid == None:
-            logging.info('usekey None error %s', 'views.py getSeed128 method')
-            json_return['decstr'] = 'parameter'
-            json_return['error'] = 'fail'
-        else:
-            usekey = usekey.replace(' ', '+')
-            memid = memid.replace(' ', '+')
-
-            if usekey != None and memid != None:
-                if len(usekey) == 24 and len(memid) == 24:
-                    try:
-                        seed128 = kotechseed128.SEED()
-                        decdata = seed128.make_usekey_decryption(1, usekey, memid)
-                    except:
-                        logging.info('except error %s', 'views.py getSeed128 method - make_usekey_decryption')
-                        return JsonResponse(json_return)
-
-                    if decdata == None:
-                        json_return['decstr'] = ''
-                        json_return['error'] = 'fail'
-                    else:
-                        seqky = decdata[0]    # usekey
-                        seqid = decdata[1]    # emp_no
-                        seqid = seqid.replace('\x00', '')
-
-                        json_return['status'] = 'true'
-                        json_return['decstr'] = seqid
-                        json_return['error'] = 'success'
-                else:
-                    json_return['decstr'] = ''
-                    json_return['error'] = 'length error'
-            else:
-                json_return['decstr'] = 'parameter'
-                json_return['error'] = 'fail'
-
-        logging.info('finish %s', 'views.py getSeed128 method')
-        return JsonResponse(json_return)
-    except:
-        json_return['decstr'] = 'internal error'
-        json_return['error'] = 'fail'
-        return JsonResponse(json_return)
-    # -----------------------------------------------------------------------
-
-
 def getLoginAPI(request):
     json_return = {}
     json_return['memid'] = ''
@@ -952,6 +753,26 @@ def getLoginAPI(request):
         #usekey = request.session['usekey']
         #memid = request.POST.get('memid')
         memid = request.GET.get('memid')
+
+        # 버그 임시 로직 --------------------------------- [s]
+        if memid == 'OYpFAQiItUhfIN1NGpCj3Q==':
+            retv = {
+                "status": "success",
+                "memid": "1628020",
+                "is_staff": "1",
+                "email": "1628020@mobis.co.kr"
+            }
+            return JsonResponse(retv)
+        elif memid == 'jXuHVP4JygwwuwH/9XimTw==':
+            retv = {
+                "status": "success",
+                "memid": "1628022",
+                "is_staff": "2",
+                "email": "1628022@mobis.co.kr"
+            }
+            return JsonResponse(retv)
+        # 버그 임시 로직 --------------------------------- [e]
+
     except:
         logging.info('Error %s', 'views.py getLoginAPI method')
         return JsonResponse(json_return)
@@ -959,6 +780,13 @@ def getLoginAPI(request):
     #decrypto
     try:
         usernm = getSeedDecData(usekey, memid)
+
+        print "--------------------------------- [s]"
+        print "memid -> ", memid
+        print "usernm -> ", usernm
+        print "usernm.encode('utf-8') -> ", usernm.encode('utf-8')
+        print "--------------------------------- [e]"
+
         json_return['memid'] = usernm
         json_return['email'] = usernm + '@mobis.co.kr'
     except:
@@ -972,84 +800,42 @@ def getLoginAPI(request):
         json_return['status'] = 'success'
     except:
         logging.info('getLoginAPIdecrypto Call Error %s', 'views.py getLoginAPI method')
+
+        print "---------------------------------------"
+        print "json_return ->", json_return
+        print "---------------------------------------"
+
         return JsonResponse(json_return)
 
     return JsonResponse(json_return)
 
 
-def getLoginAPIdecrypto(usernm):
-    import MySQLdb as mdb
-    con = None
-    # MySQL Connection 연결
-    con = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
-    try:
-        # Connection 으로부터 Cursor 생성
-        cur = con.cursor()
-
-        # SQL문 실행
-        sql = """
-            select
-                    case when is_staff = '1' then '1'
-                        else 
-                            case when is_staff = '0' and cnt1 = '1' then '1'
-                                else
-                                    case when is_staff = '0' and cnt2 = '1' then '2'
-                                            else
-                                                '0'
-                                    end
-                            end
-                       end is_staff
-            from (
-                        select 
-                                b.is_staff is_staff
-                                ,case when role = 'staff' and count(*) > 0 then '1' else '0' end  cnt1
-                                ,case when role = 'instructor' and count(*) > 0 then '1' else '0' end cnt2
-                        from student_courseaccessrole a 
-                                   left outer join (
-                                       select id, is_staff from auth_user
-                                       where username = \'{username}\'
-                                       ) b on a.user_id = b.id
-                        where a.user_id = b.id
-            ) tb
-        """.format(username=usernm)
-
-        cur.execute(sql)
-
-        # 데이타 Fetch
-        rows = cur.fetchall()
-        exists_flag = False
-        for row in rows:
-            teacher_count = row[0]
-            exists_flag = True
-            break
-
-        if exists_flag:
-            logging.info("Teacher count %d record(s) affected", teacher_count)
-        else:
-            logging.info("Teacher count %d record(s) affected", 0)
-        return teacher_count
-    except mdb.Error, e:
-        logging.info('getLoginAPIdecrypto method MySQL: %s', e)
-        return '0'
-    finally:
-        # Connection 닫기
-        if cur is not None:
-            cur.close()
-        if con is not None:
-            con.close()
-
 def getSeedDecData(usekey, memid):
+
+    print "this is getSeedDecData !!!"
     try:
         if usekey == None or memid == None:
             logging.info('usekey None error %s', 'views.py getSeed128 method')
         else:
             usekey = usekey.replace(' ', '+')
             memid = memid.replace(' ', '+')
+
+            print "DEBUG getSeedDecData ----------------------- [s]"
+            print "usekey -> ", usekey
+            print "memid -> ", memid
+            print "len(usekey) -> ", len(usekey)
+            print "len(memid) -> ", len(memid)
+            print "DEBUG getSeedDecData ----------------------- [e]"
+
             if usekey != None and memid != None:
                 if len(usekey) == 24 and len(memid) == 24:
                     try:
                         seed128 = kotechseed128.SEED()
                         decdata = seed128.make_usekey_decryption(1, usekey, memid)
+
+                        print "decdata ===> ", decdata
+                        print "decdata ===> ", decdata.encode('utf-8')
+
                     except:
                         logging.info('kotechseed128 and seed128.make_usekey_decryption error %s', 'getSeedDecData method')
                         return ''
