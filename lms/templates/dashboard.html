@@ -210,7 +210,9 @@ from student.models import CourseEnrollment
             </ul>
             <!-- maeng -->
             <ul>
+                % if 'mobis_usekey' in request.session:
                 <button onclick="cmsJump('${request.session["mobis_usekey"]}', '${request.session["mobis_memid"]}')">CMS Page Call</button>
+                % endif
             </ul>
           % else:
             <div class="empty-dashboard-message">
