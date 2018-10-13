@@ -102,6 +102,14 @@ from six import string_types
   })(this)
   </script>
 
+<script>
+$( document ).ready(function() {
+    var lock = '${enrollment_lock}';
+    if(lock =='F')
+        $('#enrollment_btn').remove();
+});
+</script>
+
   <script src="${static.url('js/course_info.js')}"></script>
 </%block>
 
@@ -128,10 +136,10 @@ from six import string_types
             <a href="${course_target}">
           %endif
 
-          <span class="register disabled">${_("You are enrolled in this course")}</span>
+          <span class="register disabled">${_("You are enrolled in this course")} ${enrollment_lock}</span>
 
           %if show_courseware_link:
-            <strong>${_("View Course")}</strong>
+            <strong id ="enrollment_btn">${_("View Course")}</strong>
             </a>
           %endif
 

@@ -106,6 +106,9 @@ class CourseOverview(TimeStampedModel):
 
     language = TextField(null=True)
 
+    # Add Column
+    recommend = models.CharField(max_length=1, blank=True, null=True)
+
     @classmethod
     def _create_or_update(cls, course):
         """

@@ -232,6 +232,7 @@ h1 {
 
 .video_bg_blue {background: #299bff !important; color: #fff !important;}
 .video_bg_green{background: #008800; color: #fff !important;}
+.video_bg_orange{background: #ffaa00}
 
 /* 기존 css */
 .courses-container .courses .course .course-image .cover-image {

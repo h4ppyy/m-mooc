@@ -99,59 +99,12 @@ function search(page_no) {
                 var attach_file = data[i].attach_file;
 
                 var title = '';
-                switch (data[i].head_title) {
-                    case 'noti_n':
-                        title = '[공지] ';
-                        break;
-                    case 'advert_n':
-                        title = '[공고] ';
-                        break;
-                    case 'guide_n':
-                        title = '[안내] ';
-                        break;
-                    case 'event_n':
-                        title = '[이벤트] ';
-                        break;
-                    case 'etc_n':
-                        title = '[기타] ';
-                        break;
-                    case 'publi_r':
-                        title = '[홍보자료] ';
-                        break;
-                    case 'data_r':
-                        title = '[자료집] ';
-                        break;
-                    case 'repo_r':
-                        title = '[보고서] ';
-                        break;
-                    case 'etc_r':
-                        title = '[기타] ';
-                        break;
-                    case 'k_news_k':
-                        title = '[K-MOOC소식] ';
-                        break;
-                    case 'report_k':
-                        title = '[보도자료] ';
-                        break;
-                    case 'u_news_k':
-                        title = '[대학뉴스] ';
-                        break;
-                    case 'support_k':
-                        title = '[서포터즈이야기] ';
-                        break;
-                    case 'n_new_k':
-                        title = '[NILE소식] ';
-                        break;
-                    case 'etc_k':
-                        title = '[기타] ';
-                        break;
-                }
 
                 //console.log(data[i].subject + ":" + data[i].board_id);
 
                 html += "<li class='tbody'>";
                 html += "   <span class='no'>" + eval(total_cnt - (10 * (curr_page - 1) + i)) + "</span>";
-                html += "   <span class='title'><a id='comm_link' href='/comm_view/" + "N" + "/" + $("#curr_page").val() + "/" + data[i].board_id + "'><i>" + title + "</i>" + data[i].subject + " </a>";
+                html += "   <span class='title'><a id='comm_link' href='/comm_view/" + "N" + "/" + $("#curr_page").val() + "/" + data[i].board_id + "'><i>" + "[" + data[i].head_title + "] " + "</i>" + data[i].subject + " </a>";
                 if (attach_file == 'Y')
                     html += "<img style='margin-right: 5px;' src='/static/images/Clip.png'/>";
                 if (reg_date > yesterday)

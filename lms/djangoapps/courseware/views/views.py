@@ -14,6 +14,7 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 from django.db import transaction
+from django.db import connections
 from django.db.models import Q
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import redirect
@@ -847,6 +848,28 @@ def course_about(request, course_id):
         # Embed the course reviews tool
         reviews_fragment_view = CourseReviewsModuleFragmentView().render_to_fragment(request, course=course)
 
+        print('course_id ====,', course_id)
+
+
+        with connections['default'].cursor() as cur:
+            query = '''
+                      select 
+                      case
+                      when count(id) <> 0
+                      then 'Y'
+                      else 'F'
+                      end as flag
+                      from course_overviews_courseoverview
+                      where enrollment_start <= now() and enrollment_end >= now()
+                      and id = '{course_id}';
+                '''.format(course_id = course_id)
+            print(query)
+            cur.execute(query)
+            rows = cur.fetchall()
+        print('rows ====',rows)
+        enrollment_lock = rows[0][0]
+
+
         context = {
             'course': course,
             'course_details': course_details,
@@ -877,7 +900,10 @@ def course_about(request, course_id):
             'course_image_urls': overview.image_urls,
             'reviews_fragment_view': reviews_fragment_view,
             'sidebar_html_enabled': sidebar_html_enabled,
+            'enrollment_lock': enrollment_lock
         }
+
+
 
         return render_to_response('courseware/course_about.html', context)
 

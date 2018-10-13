@@ -153,9 +153,11 @@ def comm_view(request, section='N', curr_page=None, board_id=None):
     board = TbBoard.objects.get(board_id=board_id)
 
     if board:
-        board.files = TbBoardAttach.objects.filter(del_yn='N')
+        board.files = TbBoardAttach.objects.filter(del_yn='N',board_id=board_id)
 
     board.regist_date = board.regist_date.strftime('%Y/%m/%d')
+    #get modify_date with form YYYY-MM-DD
+    board.modify_date = board.modify_date.strftime('%Y/%m/%d')
 
     if section == 'N':
         page_title = '공지사항'

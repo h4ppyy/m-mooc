@@ -69,6 +69,7 @@ from openedx.core.djangoapps.user_api.accounts.utils import generate_password
 from openedx.core.djangoapps.user_api.models import UserRetirementRequest
 from openedx.core.djangoapps.user_api.preferences import api as preferences_api
 from openedx.core.djangoapps.user_api.config.waffle import PREVENT_AUTH_USER_WRITES, SYSTEM_MAINTENANCE_MSG, waffle
+from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from openedx.core.djangolib.markup import HTML, Text
 from student.cookies import set_logged_in_cookies
 from student.forms import AccountCreationForm, PasswordResetFormNoActive, get_registration_extension_form
@@ -157,16 +158,24 @@ def index(request, extra_context=None, user=AnonymousUser()):
         extra_context = {}
 
     courses = get_courses(user)
+    print('courses ====',courses)
 
     if configuration_helpers.get_value(
             "ENABLE_COURSE_SORTING_BY_START_DATE",
             settings.FEATURES["ENABLE_COURSE_SORTING_BY_START_DATE"],
     ):
         courses = sort_by_start_date(courses)
+
     else:
         courses = sort_by_announcement(courses)
 
     context = {'courses': courses}
+
+    #get recommned course list
+    rec_courses = list()
+    for i in CourseOverview.objects.filter(recommend='Y'):
+        rec_courses.append(i)
+    context['rec_courses'] = rec_courses
 
     context['homepage_overlay_html'] = configuration_helpers.get_value('homepage_overlay_html')
 
@@ -193,7 +202,6 @@ def index(request, extra_context=None, user=AnonymousUser()):
 
     # Insert additional context for use in the template
     context.update(extra_context)
-
     # Add marketable programs to the context.
     context['programs_list'] = get_programs_with_type(request.site, include_hidden=False)
 
@@ -202,7 +210,8 @@ def index(request, extra_context=None, user=AnonymousUser()):
         query = '''
               SELECT board_id,
                      subject,
-                     regist_date
+                     regist_date,
+                     head_title
                 FROM tb_board
                WHERE use_yn = 'Y' AND delete_yn = 'N'
             ORDER BY board_id DESC
@@ -217,10 +226,10 @@ def index(request, extra_context=None, user=AnonymousUser()):
             row['board_id'] = data[0]
             row['title'] = data[1]
             row['regist_date'] = data[2].strftime('%Y-%m-%d')
+            row['head'] = data[3]
             index_comm.append(row)
 
     context['community'] = index_comm
-
     return render_to_response('index.html', context)
 
 
