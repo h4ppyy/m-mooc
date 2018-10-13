@@ -476,8 +476,7 @@ if gDebug:
         se = SEED()
         # returndata = se.make_usekey_encryption(1, '1624810', '201506151502')
         #encdata = se.make_usekey_encryption(1, '1624810', None)
-        #encdata = se.make_usekey_encryption(1, '1624810', '201810121206')
-        encdata = se.make_usekey_encryption(1, '1620514', '201810121206')
+        encdata = se.make_usekey_encryption(1, '1624810', '194508151504')
         # print "return data : ", returndata
         if gDebug:
             print "encode data(usekey, memid) : ", encdata[0], encdata[1]
