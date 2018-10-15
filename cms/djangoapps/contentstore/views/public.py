@@ -110,11 +110,11 @@ def howitworks(request):
 
     if not request.user.is_authenticated:
         try:
-            if 1 == 1:
-                usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
-                memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
+            if 1 == 2:
                 #usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
                 #memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
+                usekey = request.POST.get('usekey')  # usekey : emp_no (ex: 2018092011)
+                memid = request.POST.get('memid')    # memid  : emp_no (ex: 2018092011)
 
                 if usekey == None or memid == None:
                     logging.info('usekey None: %s', 'public.py checking')
@@ -185,44 +185,6 @@ def howitworks(request):
                     _email = seqid + "@" + MOBIS_EMAIL
 
                     # if not exist on auth_user model, insert
-                    if len(o1) == 0:
-
-                        # account exists_check
-                        rt = user_ora_exists_check(seqid)
-                        exists_chk = False
-                        # element count check
-                        if len(rt) > 0:
-                            user_nm = unicode(rt[0][1])     #USER_NM
-                            exists_chk = True
-
-                        # not exist user on Mobis emp master view
-                        if not exists_chk:
-                            return redirect(MOBIS_BASE_URL)
-
-                        import uuid
-                        # 32 bytes password
-                        _uuid = uuid.uuid4().__str__()
-                        _uuid = _uuid.replace('-', '')
-
-                        #devstack
-                        #q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings=devstack_docker create_user -p {pw} -e {email} -u {username}""".format(pw=_uuid, email=_email, username=seqid)
-                        #q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings=devstack_docker create_user -p edx -e {email} -u {username}""".format(email=_email, username=seqid)
-                        #q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings=devstack_docker create_user -p edx -e {email} -u {username}""".format(email='mih2@example.com', username='mih2')
-                        #native
-                        q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings aws create_user -p {pw} -e {email} -u {username}""".format(pw=_uuid, email=_email, username=seqid)
-                        #print("shell running: ", q)
-                        logging.info('shell running: %s', q)
-                        os.system(q)
-                        # mysql connect
-                        # auth_user update
-                        user_info_update(user_nm, _email)
-                    #else:
-                    #    pass
-
-                    # login id is email : 2018091201@mobis.co.kr
-                    # user = User.objects.get(email='staff@example.com')
-
-                    # test
                     try:
                         request.session['mobis_usekey'] = request.session.get('mobis_usekey', '')
                         request.session['mobis_memid'] = request.session.get('mobis_memid', '')

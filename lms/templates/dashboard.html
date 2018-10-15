@@ -368,6 +368,8 @@ from student.models import CourseEnrollment
 
             <!-- maeng -->
             <ul>
+                % if 'cms_user_val' in request.session:
                 <button onclick="goPost_CMS('http://13.125.208.102/dashboard', '${request.session["cms_user_val"]}')">CMS Page Call</button>
+                % endif
             </ul>
 <%include file="dashboard/_dashboard_entitlement_unenrollment_modal.html"/>

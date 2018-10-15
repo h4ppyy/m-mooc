@@ -76,12 +76,7 @@ urlpatterns = [
     url(r'^getauthemailcheck/?$', branding_views.getAuthEmailCheck, name='authemail_check'),   # Main marketing page, or redirect to courseware
     url(r'^getseed128/?$', branding_views.getSeed128, name='email_check'),   # Main marketing page, or redirect to courseware
     url(r'^getloginapi', branding_views.getLoginAPI, name='decrypto'),
-
     url(r'^getsession', branding_views.getSession, name='sess'),
-    url(r'^getauthcheck', branding_views.getLoginAuthCheck, name='authcheck'),
-    url(r'^getseed128', branding_views.getSeed128, name='seed'),
-    url(r'^getloginapi', branding_views.getLoginAPI, name='decrypto'),
-
     url(r'^api/cert$', branding_views.cert, name='cert'),
 
     url(r'', include('student.urls')),

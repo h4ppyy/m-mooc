@@ -12,6 +12,27 @@ from openedx.core.djangoapps.site_configuration import helpers as configuration_
 # App that handles subdomain specific branding
 from branding import api as branding_api
 %>
+<script type="text/javascript">
+        var go = function(url, id){
+            var w = window.open();
+            var domain = '.mobis.co.kr';
+            var expires = (function(days){
+                date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                return date.toUTCString();
+            })(5);
+            var name = 'memid';
+            var path = '/';
+            var value = id;    
+            //document.domain = '.mobis.co.kr';
+            document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + expires + "; path='" + path + "'; domain=" + domain + ";"; 
+
+            w.location.href = url;
+            //w.location.href = url;
+        };
+</script>
+
+
 <div class="header-logo-area">
 <h1 class="header-logo">
   <a href="${branding_api.get_home_url()}">
@@ -24,8 +45,10 @@ from branding import api as branding_api
     <li class="item nav-global-01"><a href="/about" style='font-family: "Open Sans" !important;'>MOBIS-MOOC 소개</a></li>
     <li class="item nav-global-02"><a href="/courses?pagepos=l" style='font-family: "Open Sans" !important;'>강좌찾기</a></li>
     <li class="item nav-global-03"><a href="/comm_list/N" style='font-family: "Open Sans" !important;'>공지사항</a></li>
-    <li class="item nav-global-06"><a href="http://127.0.0.1:18010" target="_blank" style='font-family: "Open Sans" !important;'>스튜디오</a></li>
-    <li class="item nav-global-07"><a href="#" target="_blank" style='font-family: "Open Sans" !important;'>CMS</a></li>
+    <li class="item nav-global-06"><a href="http://swa.mobis.co.kr:18010" target="blank" style='font-family: "Open Sans" !important;'>스튜디오</a></li>
+    % if 'cms_user_val' in request.session:
+    <li class="item nav-global-07"><a href="javascript:void(0);" onclick="go('http://cms.mobis.co.kr/sso?memid=${request.session["cms_user_val"]}', '${request.session["cms_user_val"]}');" style='font-family: "Open Sans" !important;'>CMS</a></li>
+    % endif
   </ol>
 </div>
 % if enable_enterprise_sidebar:

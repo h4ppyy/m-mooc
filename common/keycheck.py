@@ -348,9 +348,12 @@ class SEED:
     def make_usekey(self):
 
         dt = datetime.datetime.now()
+        wk = datetime.datetime.today().weekday() + 2
+        if wk > 7:
+           wk = 1
         pkey = '%s%s%s%s%s' % (
         '{0:04d}'.format(dt.year), '{0:02d}'.format(dt.month), '{0:02d}'.format(dt.day), '{0:02d}'.format(dt.day),
-        '{0:02d}'.format(datetime.datetime.today().weekday() + 2))
+        '{0:02d}'.format(wk))
 
         if self.gDebug:
             print 'usekey:' + pkey
@@ -474,9 +477,9 @@ gDebug = True
 if gDebug:
     if __name__ == "__main__":
         se = SEED()
-        # returndata = se.make_usekey_encryption(1, '1624810', '201506151502')
-        #encdata = se.make_usekey_encryption(1, '1624810', None)
         encdata = se.make_usekey_encryption(1, '1624810', '194508151504')
+        #encdataencdata = se.make_usekey_encryption(1, '1624810', None)
+        #encdata = se.make_usekey_encryption(1, '1624810', '194508151504')
         # print "return data : ", returndata
         if gDebug:
             print "encode data(usekey, memid) : ", encdata[0], encdata[1]

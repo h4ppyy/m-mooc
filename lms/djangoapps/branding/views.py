@@ -55,6 +55,7 @@ def index(request):
     """
     MOBIS_SSO_CHECK_URL = 'http://mobis.benecafe.co.kr/login/mobis/sso/OpenCommLogin.jsp'
     MOBIS_BASE_URL = 'http://www.mobis.co.kr'
+    #MOBIS_BASE_URL = ''
     MOBIS_EMAIL = "mobis.co.kr"
     MOBIS_DB_USR = 'IMIF_SWA'
     MOBIS_DB_PWD = 'Swa$2018'
@@ -81,7 +82,7 @@ def index(request):
                 logging.info('memid--> %s', memid)
 
                 if usekey == None or memid == None:
-                    logging.info('usekey None error %s', 'views.py checking')
+                    logging.info('usekey or memid no data %s', 'views.py checking')
                     return redirect(MOBIS_BASE_URL)
 
 	        usekey = usekey.replace(' ', '+')
@@ -129,6 +130,7 @@ def index(request):
                 seqid = seqid.replace('\x00', '')
 
                 logging.info('Confirm decoding: usekey= %s, memid= %s', seqky, seqid)
+                rt = getCrypto(request)
 
                 #key matching check
                 if not usekey_check(seqky):
@@ -169,55 +171,16 @@ def index(request):
 
                     _email = seqid + "@" + MOBIS_EMAIL
 
-                    # if not exist on auth_user model, insert
-                    if len(o1) == 0:
-
-                        # account exists_check
-                        rt = user_ora_exists_check(seqid)
-                        exists_chk = False
-                        # element count check
-                        if len(rt) > 0:
-                            user_nm = unicode(rt[0][1])     #USER_NM
-                            exists_chk = True
-
-                        # not exist user on Mobis emp master view
-                        if not exists_chk:
-                            return redirect(MOBIS_BASE_URL)
-
-                        import uuid
-                        # 32 bytes password
-                        _uuid = uuid.uuid4().__str__()
-                        _uuid = _uuid.replace('-', '')
-                        #_uuid = hashlib.sha1(seqid)
-
-                        #devstack
-                        #q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings=devstack_docker create_user -p edx -e {email} -u {username}""".format(email='mih2@example.com', username='mih2')
-                        #native
-                        q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings aws create_user -p {pw} -e {email} -u {username}""".format(pw=_uuid, email=_email, username=seqid)
-                        #print("shell running: ", q)
-                        logging.info('shell running: %s', q)
-                        os.system(q)
-                        # mysql connect
-                        # auth_user update
-                        user_info_update(user_nm, _email)
-                    #else:
-                    #    pass
-
-                    # login id is email : 2018091201@mobis.co.kr
-                    # user = User.objects.get(email='staff@example.com')
-
-                    # test
                     try:
                         logging.info('---------- session check #2 %s ---------------', 'views.py checking')
                         request.session['mobis_usekey'] = request.session.get('mobis_usekey', '')
                         request.session['mobis_memid'] = request.session.get('mobis_memid', '')
-                    except KeyError as e:
+                    except:
                         logging.info('---------- session check #3 %s ---------------', 'views.py checking')
                         request.session['mobis_usekey'] = ''
                         request.session['mobis_memid'] = ''
                         return redirect(MOBIS_BASE_URL)
 
-                    #_email = "staff@example.com"
                     user = User.objects.get(email=_email)
                     user.backend = 'ratelimitbackend.backends.RateLimitModelBackend'
                     django_login(request, user)
@@ -237,63 +200,9 @@ def index(request):
             request.session['mobis_memid'] = ''
             return redirect(MOBIS_BASE_URL)
 
-        # 작업 후 지울 것
-        # ---------------------------- delete start ------------------------------
-        if 1==2:
-           usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
-           memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
-
-           if usekey == None or memid == None:
-               logging.info('usekey None error %s', 'views.py checking')
-           else:
-	       usekey = usekey.replace(' ', '+')
-	       memid = memid.replace(' ', '+')
-
-               if memid.find("mih") > -1:
-                   _uuid = 'edx'
-                   _email = memid + '@example.com'
-                   seqid = memid
-                   q = """sudo -u edxapp /edx/bin/python.edxapp /edx/app/edxapp/edx-platform/manage.py lms --settings aws create_user -p {pw} -e {email} -u {username}""".format(pw=_uuid, email=_email, username=seqid)
-                   #print("shell running: ", q)
-                   q = ". /edx/app/edxapp/edx-platform/lms/djangoapps/branding/insert_member.sh"
-
-                   logging.info('shell running: %s', q)
-                   #try:
-                       #q = ". /edx/app/edxapp/edx-platform/lms/djangoapps/branding/insert_member.sh"
-                       #q = "/edx/app/edxapp/edx-platform/lms/djangoapps/branding/insert_member.sh"
-                       #return_code = subprocess.call(q, shell=True)
-                   #except OSError as e:
-                   #    logging.info('subprocess.call OSError: %s', e)
-
-                   status = os.system(q)
-                   logging.info('os.system: %s', status)
-
-                   #logging.info('subprocess.call: %s', return_code)
-                   #os.system(q)
-
-                   # mysql connect
-                   # auth_user update
-                   user_info_update(user_nm, _email)
-                   try:
-                       request.session['mobis_usekey'] = request.session.get('mobis_usekey', '')
-                       request.session['mobis_memid'] = request.session.get('mobis_memid', '')
-                   except KeyError as e:
-                       logging.info('request.session : %s', 'error #2')
-                       request.session['mobis_usekey'] = ''
-                       request.session['mobis_memid'] = ''
-                       return redirect(MOBIS_BASE_URL)
-
-                   #_email = "staff@example.com"
-                   #try:
-                   #    user = User.objects.get(email=_email)
-                   #    user.backend = 'ratelimitbackend.backends.RateLimitModelBackend'
-                   #    django_login(request, user)
-                   #except DoesNotExist as e:
-                   #    logging.info('DoesNotExist error: %s', e)
-        # ---------------------------- delete end ------------------------------
-
     if request.user.is_authenticated:
         rt = getCrypto(request)
+        #rt = getCrypto(request)
         # Only redirect to dashboard if user has
         # courses in his/her dashboard. Otherwise UX is a bit cryptic.
         # In this case, we want to have the user stay on a course catalog
@@ -339,6 +248,8 @@ def index(request):
 
 def getCrypto(request):
     temp_user = "%s" % (request.user)
+    request.session['cms_user_val'] = ''
+    request.session['cms_pubk_val'] = ''
     #cms_user_val=request.user
     #cms_pubk_val='MTk0NTA4MTUxNTA0AAAAAA=='
     #print('user:', cms_user_val, 'key:', cms_pubk_val)
@@ -365,8 +276,15 @@ def getCrypto(request):
     logging.info('decryption user : %s', decdata[1])
     logging.info('decryption  key : %s', decdata[0])
 
-    request.session['cms_user_val'] = cms_user_val
-    request.session['cms_pubk_val'] = cms_pubk_val
+    try:
+        request.session['cms_user_val'] = cms_user_val
+        request.session['cms_pubk_val'] = cms_pubk_val
+    except:
+        request.session['cms_user_val'] = ''
+        request.session['cms_pubk_val'] = ''
+        logging.info('index seed128 session error : %s', temp_user)
+        return False
+
     return True
 
 def getSession(request):
@@ -578,9 +496,12 @@ def getLoginAPIdecrypto(usernm):
 
 def usekey_check(ukey):
     dt = datetime.datetime.now()
+    wk = datetime.datetime.today().weekday() + 2
+    if wk > 7:
+        wk = 1
     pkey = '%s%s%s%s%s' % (
     '{0:04d}'.format(dt.year), '{0:02d}'.format(dt.month), '{0:02d}'.format(dt.day), '{0:02d}'.format(dt.day),
-    '{0:02d}'.format(datetime.datetime.today().weekday() + 2))
+    '{0:02d}'.format(wk))
 
     msg = ''
     if ukey == pkey:
@@ -747,31 +668,14 @@ def getLoginAPI(request):
     json_return['status'] = 'fail'
 
     #test
-    usekey = 'MjAxODEwMTIxMjA2AAAAAA=='
+    usekey = 'MTk0NTA4MTUxNTA0AAAAAA=='
+
     try:
         logging.info('Step %s', 'views.py getLoginAPI method')
         #usekey = request.session['usekey']
         #memid = request.POST.get('memid')
         memid = request.GET.get('memid')
-
-        # 버그 임시 로직 --------------------------------- [s]
-        if memid == 'OYpFAQiItUhfIN1NGpCj3Q==':
-            retv = {
-                "status": "success",
-                "memid": "1628020",
-                "is_staff": "1",
-                "email": "1628020@mobis.co.kr"
-            }
-            return JsonResponse(retv)
-        elif memid == 'jXuHVP4JygwwuwH/9XimTw==':
-            retv = {
-                "status": "success",
-                "memid": "1628022",
-                "is_staff": "2",
-                "email": "1628022@mobis.co.kr"
-            }
-            return JsonResponse(retv)
-        # 버그 임시 로직 --------------------------------- [e]
+        logging.info('getLoginAPI memid : %s', memid)
 
     except:
         logging.info('Error %s', 'views.py getLoginAPI method')
@@ -781,11 +685,8 @@ def getLoginAPI(request):
     try:
         usernm = getSeedDecData(usekey, memid)
 
-        print "--------------------------------- [s]"
-        print "memid -> ", memid
-        print "usernm -> ", usernm
-        print "usernm.encode('utf-8') -> ", usernm.encode('utf-8')
-        print "--------------------------------- [e]"
+        logging.info('usekey %s', usekey)
+        logging.info('memid  %s', memid)
 
         json_return['memid'] = usernm
         json_return['email'] = usernm + '@mobis.co.kr'
@@ -800,11 +701,6 @@ def getLoginAPI(request):
         json_return['status'] = 'success'
     except:
         logging.info('getLoginAPIdecrypto Call Error %s', 'views.py getLoginAPI method')
-
-        print "---------------------------------------"
-        print "json_return ->", json_return
-        print "---------------------------------------"
-
         return JsonResponse(json_return)
 
     return JsonResponse(json_return)
@@ -820,21 +716,14 @@ def getSeedDecData(usekey, memid):
             usekey = usekey.replace(' ', '+')
             memid = memid.replace(' ', '+')
 
-            print "DEBUG getSeedDecData ----------------------- [s]"
-            print "usekey -> ", usekey
-            print "memid -> ", memid
-            print "len(usekey) -> ", len(usekey)
-            print "len(memid) -> ", len(memid)
-            print "DEBUG getSeedDecData ----------------------- [e]"
-
-            if usekey != None and memid != None:
+            if usekey is not None and memid is not None:
                 if len(usekey) == 24 and len(memid) == 24:
                     try:
+                        logging.info("DEBUG getSeedDecData -----------------------  %s",'test')
                         seed128 = kotechseed128.SEED()
+                        logging.info("DEBUG getSeedDecData -----------------------  %s",'test1')
                         decdata = seed128.make_usekey_decryption(1, usekey, memid)
-
-                        print "decdata ===> ", decdata
-                        print "decdata ===> ", decdata.encode('utf-8')
+                        logging.info("DEBUG getSeedDecData -----------------------  %s",'test2')
 
                     except:
                         logging.info('kotechseed128 and seed128.make_usekey_decryption error %s', 'getSeedDecData method')
