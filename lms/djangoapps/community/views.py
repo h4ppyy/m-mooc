@@ -189,7 +189,7 @@ def comm_view(request, section='N', curr_page=None, board_id=None):
 @ensure_csrf_cookie
 def comm_file(request, file_id=None):
     try:
-        file = TbBoardAttach.objects.filter(del_yn='N').get(pk=file_id)
+        file = TbBoardAttach.objects.filter(del_yn='N').get(seq=file_id)
     except Exception as e:
         print 'comm_file error --- s'
         print e
@@ -197,8 +197,8 @@ def comm_file(request, file_id=None):
         print 'comm_file error --- e'
         return HttpResponse("<script>alert('파일이 존재하지 않습니다.'); window.history.back();</script>")
 
-    filepath = file.file_path.replace('/manage/home/static/upload/', '/edx/var/edxapp/staticfiles/file_upload/') if file.file_path else '/edx/var/edxapp/staticfiles/file_upload/'
-    filename = file.file_origin_name
+    filepath = file.file_path.replace('/home/user/project/mobis-admin/upload/', '/home/user/project/mobis-admin/upload/') if file.file_path else '/home/user/project/mobis-admin/upload/'
+    filename = file.file_enc_name
 
     if not file or not os.path.exists(filepath + filename):
         print 'filepath + file.file_origin_name :', filepath + filename
