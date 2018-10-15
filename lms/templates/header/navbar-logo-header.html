@@ -45,9 +45,13 @@ from branding import api as branding_api
     <li class="item nav-global-01"><a href="/about" style='font-family: "Open Sans" !important;'>MOBIS-MOOC 소개</a></li>
     <li class="item nav-global-02"><a href="/courses?pagepos=l" style='font-family: "Open Sans" !important;'>강좌찾기</a></li>
     <li class="item nav-global-03"><a href="/comm_list/N" style='font-family: "Open Sans" !important;'>공지사항</a></li>
-    <li class="item nav-global-06"><a href="http://swa.mobis.co.kr:18010" target="blank" style='font-family: "Open Sans" !important;'>스튜디오</a></li>
     % if 'cms_user_val' in request.session:
+          % if 'cms_is_staff' in request.session:
+              % if request.session['cms_is_staff'] is not '0':
+    <li class="item nav-global-06"><a href="http://swa.mobis.co.kr:18010" target="blank" style='font-family: "Open Sans" !important;'>스튜디오</a></li>
     <li class="item nav-global-07"><a href="javascript:void(0);" onclick="go('http://cms.mobis.co.kr/sso?memid=${request.session["cms_user_val"]}', '${request.session["cms_user_val"]}');" style='font-family: "Open Sans" !important;'>CMS</a></li>
+              % endif
+          % endif
     % endif
   </ol>
 </div>

@@ -118,7 +118,7 @@ $( document ).ready(function() {
 <section class="course-info">
 
   <%block name="course_about_header">
-  <header class="course-profile" style='height: 330px;'>
+  <header class="course-profile" style='height: 330px; padding-left: 30px; padding-right: 30px;'>
     <div class="intro-inner-wrapper">
       <div class="table">
       <section class="intro">
@@ -136,7 +136,7 @@ $( document ).ready(function() {
             <a href="${course_target}">
           %endif
 
-          <span class="register disabled">${_("You are enrolled in this course")} ${enrollment_lock}</span>
+          <span class="register disabled">${_("You are enrolled in this course")}</span>
 
           %if show_courseware_link:
             <strong id ="enrollment_btn">${_("View Course")}</strong>
