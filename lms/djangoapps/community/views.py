@@ -25,6 +25,8 @@ import datetime
 from django.db import connections
 from django.core.urlresolvers import reverse
 
+import logging
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -117,6 +119,12 @@ def comm_list(request, section=None, curr_page=None):
 
 @ensure_csrf_cookie
 def comm_view(request, section='N', curr_page=None, board_id=None):
+
+    #board_id = '1'
+
+    logging.info("*********************************")
+    logging.info('board_id -> ', board_id)
+    logging.info("*********************************")
     board_id = int(board_id)
 
     #print "board_id -> ", board_id
