@@ -130,6 +130,12 @@ def index(request):
                 seqid = seqid.replace('\x00', '')
 
                 logging.info('Confirm decoding: usekey= %s, memid= %s', seqky, seqid)
+
+                request.session['cms_is_staff'] = ''
+                is_staff = getLoginAPIdecrypto(seqid)
+                logging.info('cms_is_staff: is_staff= %s', is_staff)
+                request.session['cms_is_staff'] = is_staff
+
                 rt = getCrypto(request)
 
                 #key matching check
@@ -166,10 +172,36 @@ def index(request):
                     # user exists check - mysql
                     # username is user_id of the Mobis view table
                     o1 = User.objects.filter(username=seqid)
-                    if o1 == None:
+                    if o1 is None:
                         return redirect(MOBIS_BASE_URL)
 
                     _email = seqid + "@" + MOBIS_EMAIL
+
+                    # if not exist on auth_user model, insert
+                    if len(o1) == 0:
+
+                        # account exists_check
+                        rt = user_ora_exists_check(seqid)
+                        # element count check
+                        if len(rt) > 0:
+                            user_nm = unicode(rt[0][1]) #USER_NM
+                        else:
+                        # not exist user on Mobis emp master view
+                            return redirect(MOBIS_BASE_URL)
+
+                        import uuid
+                        # 32 bytes password
+                        _uuid = uuid.uuid4().__str__()
+                        _uuid = _uuid.replace('-', '')
+
+                        cmd = 'bash /edx/app/edxapp/edx-platform/add_user.sh {email} {password} {username}'.format(
+                                   email=email,
+                                   password=password,
+                                   username = username[i])
+                        logging.info('Shell script run : %s', cmd)
+                        result = os.system(cmd)
+                        # auth_user update
+                        user_info_update(user_nm, _email)
 
                     try:
                         logging.info('---------- session check #2 %s ---------------', 'views.py checking')
@@ -302,14 +334,14 @@ def getAuthCheck(request):
     cmsstr = request.GET.get('cmsstr')
 
     try:
-        if cmsstr == None:
+        if cmsstr is None:
             logging.info('cmsstr None error %s', 'views.py getAuthCheck method')
             json_return['status'] = 'false'
         else:
             #check
             #o1 = User.objects.filter(username=cmsstr)
             o1 = User.objects.filter(email=cmsstr)
-            if o1 == None:
+            if o1 is None:
                 json_return['status'] = 'false'
             else:
                 if len(o1) == 0:
@@ -328,13 +360,13 @@ def getAuthUserCheck(request):
     cmsstr = request.GET.get('cmsstr')
 
     try:
-        if cmsstr == None:
+        if cmsstr is None:
             logging.info('cmsstr None error %s', 'views.py getAuthUserCheck method')
             json_return['status'] = 'false'
         else:
             #check
             o1 = User.objects.filter(username=cmsstr)
-            if o1 == None:
+            if o1 is None:
                 json_return['status'] = 'false'
             else:
                 if len(o1) == 0:
@@ -389,9 +421,7 @@ def getSeed128(request):
     try:
         if usekey == None or memid == None:
             logging.info('usekey None error %s', 'views.py getSeed128 method')
-            json_return['status'] = 'false'
             json_return['decstr'] = 'parameter'
-            json_return['error'] = 'fail'
         else:
             usekey = usekey.replace(' ', '+')
             memid = memid.replace(' ', '+')
@@ -408,7 +438,6 @@ def getSeed128(request):
                     if decdata == None:
                         json_return['status'] = 'true'
                         json_return['decstr'] = ''
-                        json_return['error'] = 'fail'
                     else:
                         seqky = decdata[0]    # usekey
                         seqid = decdata[1]    # emp_no
@@ -418,11 +447,9 @@ def getSeed128(request):
                         json_return['decstr'] = seqid
                         json_return['error'] = 'success'
                 else:
-	            json_return['status'] = 'false'
                     json_return['decstr'] = ''
                     json_return['error'] = 'length error'
             else:
-                json_return['status'] = 'false'
                 json_return['decstr'] = 'parameter'
                 json_return['error'] = 'fail'
 
@@ -493,7 +520,6 @@ def getLoginAPIdecrypto(usernm):
         if con is not None:
             con.close()
 
-
 def usekey_check(ukey):
     dt = datetime.datetime.now()
     wk = datetime.datetime.today().weekday() + 2
@@ -524,10 +550,10 @@ def user_ora_exists_check(seqid):
 
         MOBIS_BASE_URL = 'http://www.mobis.co.kr'
         MOBIS_EMAIL = "mobis.co.kr"
-        MOBIS_DB_USR = 'IMIF_SWA'
-        MOBIS_DB_PWD = 'Swa$2018'
-        MOBIS_DB_SID = 'imdb'
-        MOBIS_DB_IP = '10.10.163.73'
+        MOBIS_DB_USR = 'SWAUSER'
+        MOBIS_DB_PWD = 'mbora#SW252'
+        MOBIS_DB_SID = 'mobispdm'
+        MOBIS_DB_IP = '10.230.22.252'
         MOBIS_DB_PORT = '1521'
 
         dsn = ora.makedsn(MOBIS_DB_IP, MOBIS_DB_PORT, MOBIS_DB_SID)
@@ -539,14 +565,12 @@ def user_ora_exists_check(seqid):
         query = """
                     SELECT
                          USER_ID
-                        ,NVL(USER_NM,\'\') USER_NM
-                        ,DUTY_CD
-                        ,DUTY_NM_HOME
-                        ,DEPT_CD
+                        ,NVL(USER_KN,\'\') USER_KN
+                        ,NVL(USER_EN,\'\') USER_EN
+                        ,NVL(ORGTX_DIV,\'\') ORGTX_DIV
                         ,NVL(DEPT_NM,\'\') DEPT_NM
-                        ,USER_GRADE_CODE
-                        ,NVL(JW_NM_HOME,\'\') JW_NM_HOME
-                    FROM WFUSER.VW_HISTORY_SWA
+                        ,NVL(POSN_NM,\'\') POSN_NM
+                    FROM MERP.VW_USER_IM
                     WHERE USER_ID = \'{seqid}\'
                     AND   ROWNUM = 1
                 """.format(seqid=seqid)

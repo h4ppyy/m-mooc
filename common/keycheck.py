@@ -477,8 +477,9 @@ gDebug = True
 if gDebug:
     if __name__ == "__main__":
         se = SEED()
-        encdata = se.make_usekey_encryption(1, '1624810', '194508151504')
-        #encdataencdata = se.make_usekey_encryption(1, '1624810', None)
+        #encdata = se.make_usekey_encryption(1, '1624810', '194508151504')
+        #encdata = se.make_usekey_encryption(1, '1624810', None)
+        encdata = se.make_usekey_encryption(1, '1622456', None)
         #encdata = se.make_usekey_encryption(1, '1624810', '194508151504')
         # print "return data : ", returndata
         if gDebug:
