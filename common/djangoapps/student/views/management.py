@@ -157,24 +157,41 @@ def index(request, extra_context=None, user=AnonymousUser()):
     if extra_context is None:
         extra_context = {}
 
+    """
     courses = get_courses(user)
-    print('courses ====',courses)
-
     if configuration_helpers.get_value(
             "ENABLE_COURSE_SORTING_BY_START_DATE",
             settings.FEATURES["ENABLE_COURSE_SORTING_BY_START_DATE"],
     ):
         courses = sort_by_start_date(courses)
-
     else:
         courses = sort_by_announcement(courses)
+    """
 
-    context = {'courses': courses}
+    print("**********************************************")
+    print(datetime.datetime.utcnow())
+    utcnow=datetime.datetime.utcnow()
+    time_gap = datetime.timedelta(hours=9)
+    kor_time = utcnow + time_gap
+    print("kortime ======",kor_time)
+    max_time = datetime.datetime(2039,12,31,23,59)
+    print("max time =====",max_time)
+    print("**********************************************")
 
-    #get recommned course list
+    courses = list()
+    for i in CourseOverview.objects.filter(enrollment_start__lte=kor_time,enrollment_end__gte=kor_time,start__lte=max_time):
+        print('i ---------------->',i)
+        courses.append(i)
+    print(courses)
+
+
     rec_courses = list()
     for i in CourseOverview.objects.filter(recommend='Y'):
         rec_courses.append(i)
+
+    context = {}
+
+    context['courses'] = courses
     context['rec_courses'] = rec_courses
 
     context['homepage_overlay_html'] = configuration_helpers.get_value('homepage_overlay_html')
