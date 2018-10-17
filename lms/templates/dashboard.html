@@ -134,6 +134,7 @@ from student.models import CourseEnrollment
 
 </div>
 
+
 <main id="main" aria-label="Content" tabindex="-1">
     <div class="dashboard" id="dashboard-main">
       <div class="main-container">
@@ -350,16 +351,22 @@ from student.models import CourseEnrollment
       </h2>
       <hr/>
     </header>
+
     <div id="unenroll_error" class="modal-form-error"></div>
     <form id="unenroll_form" method="post" data-remote="true" action="${reverse('change_enrollment')}">
       <input name="course_id" id="unenroll_course_id" type="hidden" />
       <input name="enrollment_action" type="hidden" value="unenroll" />
       <div class="submit">
-        <input class="submit-button" name="submit" type="submit" value="${_("Unenroll")}" />
+        <input class="submit-button" name="submit" type="submit" value="수강취소" />
       </div>
     </form>
   </div>
 </div>
 
+<script>
+    setTimeout(function() {
+      $('#unenroll_course_name').html('hello world');
+    }, 1000);
+</script>
             <!-- maeng -->
 <%include file="dashboard/_dashboard_entitlement_unenrollment_modal.html"/>
