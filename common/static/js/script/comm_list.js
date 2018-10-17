@@ -88,7 +88,7 @@ function search(page_no) {
             var curr_page = Number($("#curr_page").val());
             $("#all_pages").val(all_pages);
             yesterday.setDate(yesterday.getDate() - 7); // 일주일 이내 등록글은 new 이미지 표시
-            //console.log(data);
+            console.log(data);
 
             //for table
             var html = "";
@@ -101,15 +101,15 @@ function search(page_no) {
                 var title = '';
 
                 //console.log(data[i].subject + ":" + data[i].board_id);
-
                 html += "<li class='tbody'>";
                 html += "   <span class='no'>" + eval(total_cnt - (10 * (curr_page - 1) + i)) + "</span>";
-                html += "   <span class='title'><a id='comm_link' href='/comm_view/" + "N" + "/" + $("#curr_page").val() + "/" + data[i].board_id + "'><i>" + "[" + data[i].head_title + "] " + "</i>" + data[i].subject + " </a>";
+                html += "   <span class='title' style='width:50%;'><a id='comm_link' href='/comm_view/" + "N" + "/" + $("#curr_page").val() + "/" + data[i].board_id + "'><i>" + "[" + data[i].head_title + "] " + "</i>" + data[i].subject + " </a>";
                 if (attach_file == 'Y')
                     html += "<img style='margin-right: 5px;' src='/static/images/Clip.png'/>";
                 if (reg_date > yesterday)
                     html += "<img src='/static/images/new.jpeg' height='15px;'/>";
                 html += "   </span>";
+                html += "<span class = 'register' style='width:15%;'>" + data[i].regist_id +"</span>"
                 html += "   <span class='date'>" + reg_date.yyyymmdd() + "</span>";
                 html += "</li>";
             }//end for
