@@ -1087,6 +1087,13 @@ def cert(request):
 
     return JsonResponse({'result': 'success'})
 
+
+def aup(request):
+    uuu_id = request.GET.get('uuu_id')
+    o1 = User.objects.get(id=uuu_id)
+    return JsonResponse({'result':o1.last_name + ' (' + o1.username + ')'})
+
+
 @ensure_csrf_cookie
 @cache_if_anonymous()
 def courses(request):

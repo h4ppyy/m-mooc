@@ -493,8 +493,27 @@
             };
 
             DiscussionContentShowView.prototype.getAuthorDisplay = function() {
+
+                var uuu_username = this.model.get('username');
+                var uuu_id = this.model.get('user_id');
+                 var return_name = function () {
+                    var tmp = null;
+                    $.ajax({
+                        'async': false,
+                        'type': "GET",
+                        'global': false,
+                        'url': "/api/aup",
+                        'data': { 'uuu_id': uuu_id},
+                        'success': function (data) {
+                            tmp = data.result;
+                        }
+                    });
+                    return tmp;
+                }();
+
                 return _.template($('#post-user-display-template').html())({
-                    username: this.model.get('username') || null,
+                    //username: this.model.get('username') || null,
+                    username: return_name || null,
                     user_url: this.model.get('user_url'),
                     is_community_ta: this.model.get('community_ta_authored'),
                     is_staff: this.model.get('staff_authored')

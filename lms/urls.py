@@ -77,8 +77,10 @@ urlpatterns = [
     url(r'^getseed128/?$', branding_views.getSeed128, name='email_check'),   # Main marketing page, or redirect to courseware
     url(r'^getloginapi', branding_views.getLoginAPI, name='decrypto'),
     url(r'^getsession', branding_views.getSession, name='sess'),
-    url(r'^api/cert$', branding_views.cert, name='cert'),
     url(r'^userhumanupdate$', branding_views.user_ora_human_update, name='human'),
+
+    url(r'^api/cert$', branding_views.cert, name='cert'),
+    url(r'^api/aup$', branding_views.aup, name='aup'),
 
     url(r'', include('student.urls')),
     # TODO: Move lms specific student views out of common code
