@@ -55,108 +55,105 @@ def index(request):
     """
     MOBIS_SSO_CHECK_URL = 'http://mobis.benecafe.co.kr/login/mobis/sso/OpenCommLogin.jsp'
     MOBIS_BASE_URL = 'http://www.mobis.co.kr'
-    #MOBIS_BASE_URL = ''
     MOBIS_EMAIL = "mobis.co.kr"
-    MOBIS_DB_USR = 'IMIF_SWA'
-    MOBIS_DB_PWD = 'Swa$2018'
-    MOBIS_DB_SID = 'imdb'
-    MOBIS_DB_IP = '10.10.163.73'
-    MOBIS_DB_PORT = '1521'
     pass_chk = True
-    chk = False
     upk = ['', '']
-
     user_nm = u''
 
-    logging.info('login SSO check : %s', 'start')
-    logging.info('---------- %s ---------------', 'step 1')
+    logging.info('login SSO check module : %s', 'start')
     if not request.user.is_authenticated:
-        logging.info('---------- %s ---------------', 'step 2')
         try:
-	    if 1 == 1:
-                #usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
-                #memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
+            logging.info('%s', 'views.py def index step 1')
+            if 1 == 1:
                 usekey = request.POST.get('usekey')  # usekey : emp_no (ex: 2018092011)
                 memid = request.POST.get('memid')    # memid  : emp_no (ex: 2018092011)
-                logging.info('usekey--> %s', usekey)
-                logging.info('memid--> %s', memid)
+                # usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
+                # memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
 
-                if usekey == None or memid == None:
-                    logging.info('usekey or memid no data %s', 'views.py checking')
+                if usekey is None or memid is None:
+                    logging.info('%s usekey or memid no data', 'views.py def index step E1')
                     return redirect(MOBIS_BASE_URL)
 
-	        usekey = usekey.replace(' ', '+')
-	        memid = memid.replace(' ', '+')
+                usekey = usekey.replace(' ', '+')
+                memid = memid.replace(' ', '+')
+
+                logging.info('%s : usekey --> %s, memid --> %s', 'views.py def index step 2', usekey, memid)
 
                 chk = False
-                if usekey != None and memid != None:
+                if usekey is not None and memid is not None:
                     if len(usekey) == 24 and len(memid) == 24:
                         chk = True
 
                 if not chk:
+                    logging.info('%s usekey or memid lenth error', 'views.py def index step E2')
                     return redirect(MOBIS_BASE_URL)
 
                 try:
                     seed128 = kotechseed128.SEED()
+                    logging.info('%s kotechseed128 class error', 'views.py def index step 3')
                 except:
-                    logging.info('kotechseed128 error %s', 'views.py checking')
+                    logging.info('%s kotechseed128 class error', 'views.py def index step E3')
                     return redirect(MOBIS_BASE_URL)
                     
-                logging.info('---------- session check start %s ---------------', 'views.py checking')
-                #base64
-                #print ('usekey:', usekey, 'memid:', memid)
                 try:
+                    logging.info('%s session setting', 'views.py def index step 4')
                     request.session['mobis_usekey'] = usekey
                     request.session['mobis_memid'] = memid
                 except:
-                    logging.info('request.session error #1 %s', 'views.py checking')
+                    logging.info('%s session setting error', 'views.py def index step E4')
                     request.session['mobis_usekey'] = ''
                     request.session['mobis_memid'] = ''
                     return redirect(MOBIS_BASE_URL)
                   
                 try:
+                    logging.info('%s make_usekey_decryption', 'views.py def index step 5')
                     decdata = seed128.make_usekey_decryption(1, usekey, memid)
                 except:
-                    logging.info('make_usekey_decryption error %s', 'views.py checking')
+                    logging.info('%s make_usekey_decryption error', 'views.py def index step E5')
                     return redirect(MOBIS_BASE_URL)
 
-                if decdata == None:
-                    #print ('branding/views.py - decryption error')
-                    logging.info('edx-platform/lms/djangoapps/branding/views.py - decryption error: %s','checking please')
+                if decdata is None:
+                    logging.info('%s make_usekey_decryption no data', 'views.py def index step E6')
                     return redirect(MOBIS_BASE_URL)
 
                 seqky = decdata[0]    # usekey
                 seqid = decdata[1]    # emp_no
                 seqid = seqid.replace('\x00', '')
 
-                logging.info('Confirm decoding: usekey= %s, memid= %s', seqky, seqid)
+                logging.info('%s Confirm decoding: usekey= %s, memid= %s', 'views.py def index step 6', seqky, seqid)
 
                 request.session['cms_is_staff'] = ''
-                is_staff = getLoginAPIdecrypto(seqid)
+                _email = seqid + "@" + MOBIS_EMAIL
+                is_staff = getLoginAPIdecrypto(_email)
                 logging.info('cms_is_staff: is_staff= %s', is_staff)
                 request.session['cms_is_staff'] = is_staff
 
                 rt = getCrypto(request)
+                logging.info('%s : getCrypto', 'views.py def index step 7')
 
                 #key matching check
                 if not usekey_check(seqky):
+                    logging.info('%s : usekey_check seqky: %s', 'views.py def index step E7', seqky)
                     return redirect(MOBIS_BASE_URL)
 
                 # seed encryption
-                if seqid != None:
+                if seqid is not None:
                     if len(seqid) > 6 and len(seqid) < 17:
                         # parameter : user id, fixed length 10 bytes
                         upk = seed128.make_usekey_encryption(1, seqid, seqky)   # upk : usekey
+                        logging.info('%s : make_usekey_encryption', 'views.py def index step 8')
                     else:
+                        logging.info('%s : id length error', 'views.py def index step E8')
                         return redirect(MOBIS_BASE_URL)
                 else:
+                    logging.info('%s : seqid None', 'views.py def index step E9')
                     return redirect(MOBIS_BASE_URL)
 
                 payload = {}
                 payload['usedkey'] = upk[0]
                 payload['memID'] = upk[1]
 
-                logging.info('Confirm: usekey= %s, memid= %s', upk[0], upk[1])
+                logging.info('%s Confirm decoding: usekey= %s, memid= %s', 'views.py def index step 9', upk[0], upk[1])
 
                 r = requests.get(MOBIS_SSO_CHECK_URL, params=payload)
                 res = r.text.upper()
@@ -171,22 +168,24 @@ def index(request):
                 if pass_chk == True or res.index("TRUE") > 0:
                     # user exists check - mysql
                     # username is user_id of the Mobis view table
-                    o1 = User.objects.filter(username=seqid)
+                    logging.info('%s Confirm User.objects.filter: email= %s', 'views.py def index step 10', _email)
+                    o1 = User.objects.filter(email=_email)
                     if o1 is None:
+                        logging.info('%s Confirm User.objects.filter error: email= %s', 'views.py def index step E10', _email)
                         return redirect(MOBIS_BASE_URL)
-
-                    _email = seqid + "@" + MOBIS_EMAIL
 
                     # if not exist on auth_user model, insert
                     if len(o1) == 0:
-
+                        logging.info('%s human information checking', 'views.py def index step 11')
                         # account exists_check
                         rt = user_ora_exists_check(seqid)
                         # element count check
                         if len(rt) > 0:
-                            user_nm = unicode(rt[0][1]) #USER_NM
+                            #user_nm = unicode(rt[0][1])+'('+seqid+')' #USER_NM 홍길동(10000000) 형식으로 생성
+                            user_nm = seqid #USER_NM 홍길동(10000000) 형식으로 생성
                         else:
-                        # not exist user on Mobis emp master view
+                            # not exist user on Mobis emp master view
+                            logging.info('%s no data in human information', 'views.py def index step E11')
                             return redirect(MOBIS_BASE_URL)
 
                         import uuid
@@ -195,42 +194,33 @@ def index(request):
                         _uuid = _uuid.replace('-', '')
 
                         cmd = 'bash /edx/app/edxapp/edx-platform/add_user.sh {email} {password} {username}'.format(
-                                   email=email,
-                                   password=password,
-                                   username = username[i])
-                        logging.info('Shell script run : %s', cmd)
+                                   email=_email,
+                                   password=_uuid,
+                                   username = user_id)
+                        logging.info('%s Shell script : %s', 'views.py def index step 12', cmd)
                         result = os.system(cmd)
                         # auth_user update
                         user_info_update(user_nm, _email)
 
-                    try:
-                        logging.info('---------- session check #2 %s ---------------', 'views.py checking')
-                        request.session['mobis_usekey'] = request.session.get('mobis_usekey', '')
-                        request.session['mobis_memid'] = request.session.get('mobis_memid', '')
-                    except:
-                        logging.info('---------- session check #3 %s ---------------', 'views.py checking')
-                        request.session['mobis_usekey'] = ''
-                        request.session['mobis_memid'] = ''
-                        return redirect(MOBIS_BASE_URL)
-
                     user = User.objects.get(email=_email)
                     user.backend = 'ratelimitbackend.backends.RateLimitModelBackend'
                     django_login(request, user)
+                    logging.info('%s : django_login', 'views.py def index step 13')
 
                 else:
                     return redirect(MOBIS_BASE_URL)
             else:
-                logging.info('---------- session check #4 %s ---------------', 'views.py checking')
+                logging.info('%s go force mobis site', 'views.py def index step E13')
                 request.session['mobis_usekey'] = ''
                 request.session['mobis_memid'] = ''
                 return redirect(MOBIS_BASE_URL)
         except Exception as e:
-            #print 'error------------->', e
-            logging.info('Error: %s', e)
-            logging.info('---------- session check #5 %s ---------------', 'views.py checking')
+            logging.info('%s except error : %s', 'views.py def index step E14', e)
             request.session['mobis_usekey'] = ''
             request.session['mobis_memid'] = ''
             return redirect(MOBIS_BASE_URL)
+        finally:
+            logging.info('login SSO check module : %s', 'end')
 
     if request.user.is_authenticated:
         rt = getCrypto(request)
@@ -278,21 +268,20 @@ def index(request):
     #  marketing and edge are enabled
     return student.views.index(request, user=request.user)
 
+
 def getCrypto(request):
     temp_user = "%s" % (request.user)
+
     request.session['cms_user_val'] = ''
     request.session['cms_pubk_val'] = ''
-    #cms_user_val=request.user
-    #cms_pubk_val='MTk0NTA4MTUxNTA0AAAAAA=='
-    #print('user:', cms_user_val, 'key:', cms_pubk_val)
-    logging.info('index user: %s', temp_user)
-    logging.info('index user type check: %s', type(temp_user))
+
+    logging.info('views.py def getCrypto index user: %s', temp_user)
+    logging.info('views.py def getCrypto index user type check: %s', type(temp_user))
     try:
         se = kotechseed128.SEED()
         encdata=se.make_usekey_encryption(1, temp_user, '194508151504')
-        #encdata=se.make_usekey_encryption(1, '1628020', '194508151504')
     except:
-        logging.info('index seed128 user error : %s', temp_user)
+        logging.info('views.py def getCrypto error : %s', temp_user)
         return False
 
     cms_pubk_val = encdata[0]
@@ -302,11 +291,11 @@ def getCrypto(request):
     try:
         decdata = se.make_usekey_decryption(1, cms_pubk_val, cms_user_val)
     except:
-        logging.info('index seed128 user error : %s', temp_user)
+        logging.info('views.py def getCrypto make_usekey_decryption: %s', temp_user)
         return False
 
-    logging.info('decryption user : %s', decdata[1])
-    logging.info('decryption  key : %s', decdata[0])
+    logging.info('views.py def getCrypto decryption user : %s', decdata[1])
+    logging.info('views.py def getCrypto decryption  key : %s', decdata[0])
 
     try:
         request.session['cms_user_val'] = cms_user_val
@@ -346,8 +335,8 @@ def getAuthCheck(request):
             else:
                 if len(o1) == 0:
                     json_return['status'] = 'false'
-	        else:
-	            json_return['status'] = 'true'
+                else:
+                    json_return['status'] = 'true'
         return JsonResponse(json_return)
     except:
         json_return['status'] = 'false'
@@ -408,7 +397,6 @@ def getAuthEmailCheck(request):
         return JsonResponse(json_return)
 
 def getSeed128(request):
-    # -----------------------------------------------------------------------
     #using id check session
     json_return = {}
     json_return['status'] = 'false'
@@ -461,16 +449,25 @@ def getSeed128(request):
         json_return['decstr'] = 'internal error'
         json_return['error'] = 'fail'
         return JsonResponse(json_return)
-    # -----------------------------------------------------------------------
 
-def getLoginAPIdecrypto(usernm):
+def getLoginAPIdecrypto(email):
     import MySQLdb as mdb
     con = None
     # MySQL Connection 연결
-    con = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
+    con = mdb.connect(settings.DATABASES.get('default').get('HOST'),
+                     settings.DATABASES.get('default').get('USER'),
+                     settings.DATABASES.get('default').get('PASSWORD'),
+                     settings.DATABASES.get('default').get('NAME'),
+                     charset='utf8')
+
+    # con = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
+
     try:
         # Connection 으로부터 Cursor 생성
         cur = con.cursor()
+        # username check
+        # login 하는 경우에는 사번만 존재한다.
+
         # SQL문 실행
         sql = """
             select
@@ -492,11 +489,11 @@ def getLoginAPIdecrypto(usernm):
                         from student_courseaccessrole a 
                                    left outer join (
                                        select id, is_staff from auth_user
-                                       where username = \'{username}\'
+                                       where email = \'{email}\'
                                        ) b on a.user_id = b.id
                         where a.user_id = b.id
             ) tb
-        """.format(username=usernm)
+        """.format(email=email)
         cur.execute(sql)
         # 데이타 Fetch
         rows = cur.fetchall()
@@ -521,6 +518,12 @@ def getLoginAPIdecrypto(usernm):
             con.close()
 
 def usekey_check(ukey):
+
+    # utcnow = datetime.datetime.utcnow()
+    # time_gap = datetime.timedelta(hours=9)
+    # dt = utcnow + time_gap
+    # wk = dt.weekday()+2
+
     dt = datetime.datetime.now()
     wk = datetime.datetime.today().weekday() + 2
     if wk > 7:
@@ -542,23 +545,30 @@ def usekey_check(ukey):
 def user_ora_exists_check(seqid):
 
     import cx_Oracle as ora
+    #os.putenv('NLS_LANG', 'UTF8')
 
     try:
         db = None
         cur = None
         results = []
 
-        MOBIS_BASE_URL = 'http://www.mobis.co.kr'
-        MOBIS_EMAIL = "mobis.co.kr"
-        MOBIS_DB_USR = 'SWAUSER'
-        MOBIS_DB_PWD = 'mbora#SW252'
-        MOBIS_DB_SID = 'mobispdm'
-        MOBIS_DB_IP = '10.230.22.252'
-        MOBIS_DB_PORT = '1521'
+        gMobis = True
+        if gMobis:
+            MOBIS_DB_USR = 'SWAUSER'
+            MOBIS_DB_PWD = 'mbora#SW252'
+            MOBIS_DB_SID = 'mobispdm'
+            MOBIS_DB_IP = '10.230.22.252'
+            MOBIS_DB_PORT = '1521'
+        else:
+            MOBIS_DB_USR = 'scott'
+            MOBIS_DB_PWD = 'tiger'
+            MOBIS_DB_SID = 'XE'
+            MOBIS_DB_IP = 'localhost'
+            MOBIS_DB_PORT = '1521'
 
         dsn = ora.makedsn(MOBIS_DB_IP, MOBIS_DB_PORT, MOBIS_DB_SID)
         db = ora.connect(MOBIS_DB_USR, MOBIS_DB_PWD, dsn)
-        # con = cx_Oracle.connect("system/oracle@localhost:1521")
+        # db = ora.connect("scott/tiger@127.0.0.1/XE")
         cur = db.cursor()
 
         # get one row
@@ -576,7 +586,6 @@ def user_ora_exists_check(seqid):
                 """.format(seqid=seqid)
 
         # WFUSER.VW_HISTORY_SWA
-        #print 'query ---------------------->', query
         logging.info('query: %s', query)
         cur.execute(query)
 
@@ -596,6 +605,211 @@ def user_ora_exists_check(seqid):
         if db is not None:
             db.close()
 
+def user_ora_human_update(rnn_go):
+    #http://localhost:18000/userhumanupdate?rnn_go=1
+    import cx_Oracle as ora
+    import MySQLdb as mdb
+    #import os
+
+    try:
+        #os.putenv('NLS_LANG', 'UTF8')
+
+        db = None
+        cur = None
+        mycon = None
+        mycur = None
+
+        results = []
+
+        gMobis = True
+        if gMobis:
+            MOBIS_DB_USR = 'SWAUSER'
+            MOBIS_DB_PWD = 'mbora#SW252'
+            MOBIS_DB_SID = 'mobispdm'
+            MOBIS_DB_IP = '10.230.22.252'
+            MOBIS_DB_PORT = '1521'
+        else:
+            MOBIS_DB_USR = 'scott'
+            MOBIS_DB_PWD = 'tiger'
+            MOBIS_DB_SID = 'XE'
+            MOBIS_DB_IP = 'localhost'
+            MOBIS_DB_PORT = '1521'
+
+        dsn = ora.makedsn(MOBIS_DB_IP, MOBIS_DB_PORT, MOBIS_DB_SID)
+        db = ora.connect(MOBIS_DB_USR, MOBIS_DB_PWD, dsn)
+        # db = ora.connect("scott/tiger@127.0.0.1/XE")
+        cur = db.cursor()
+
+        # get one row
+        query = """
+                    SELECT
+                         USER_ID
+                        ,NVL(USER_KN,\'\') USER_KN
+                        ,NVL(USER_EN,\'\') USER_EN
+                        ,NVL(ORGTX_DIV,\'\') ORGTX_DIV
+                        ,NVL(DEPT_NM,\'\') DEPT_NM
+                        ,NVL(POSN_NM,\'\') POSN_NM
+                    FROM MERP.VW_USER_IM
+                    ORDER BY USER_ID ASC
+                """
+
+        # MERP.VW_USER_IM
+        logging.info('query: %s', query)
+        cur.execute(query)
+
+        for row in cur.fetchall():
+            results.append(row)
+
+        mycon = None
+        #mycon = mdb.connect(settings.DATABASES.get('default').get('HOST'),
+        #                  settings.DATABASES.get('default').get('USER'),
+        #                  settings.DATABASES.get('default').get('PASSWORD'),
+        #                  settings.DATABASES.get('default').get('NAME'),
+        #                  charset='utf8')
+
+        mycon = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
+
+        # Connection 으로부터 Cursor 생성
+        logging.info("views.py def index user_human_connect", "test")
+        mycur = mycon.cursor()
+        #mycon, mycur = user_human_connect()
+
+        # MySQL Insert processing
+        for row in results:
+            user_id = row[0]    # USER_ID
+            user_nm = row[1]    # USER_KN
+            #username = user_nm + '('+user_id+')'
+            username = user_id
+            user_nm = user_id
+            email = user_id+'@mobis.co.kr'    # email
+            logging.info("****user_id:%s, user_nm: %s, email: %s", user_id, user_nm, email)
+            user_human_update(mycon, mycur, user_nm, user_id, email)
+
+        json_return = {}
+        json_return['status'] = 'OK'
+        return JsonResponse(json_return)
+
+    except ora.DatabaseError as e:
+        logging.info('Oracle SQL: %s', e)
+        json_return = {}
+        json_return['status'] = 'fail'
+        return JsonResponse(json_return)
+    finally:
+        if mycur is not None:
+            mycur.close()
+        if mycon is not None:
+            mycon.close()
+        # cursor and connection close
+        if cur is not None:
+            cur.close()
+        if db is not None:
+            db.close()
+
+def user_human_connect():
+    import MySQLdb as mdb
+    con = None
+    con = mdb.connect(settings.DATABASES.get('default').get('HOST'),
+                      settings.DATABASES.get('default').get('USER'),
+                      settings.DATABASES.get('default').get('PASSWORD'),
+                      settings.DATABASES.get('default').get('NAME'),
+                      charset='utf8')
+
+    # con = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
+
+    # Connection 으로부터 Cursor 생성
+    logging.info("views.py def index user_human_connect", "test")
+    cur = con.cursor()
+    return con, cur
+
+def user_human_disconnect(con, cur):
+    # Connection 닫기
+    if cur is not None:
+        cur.close()
+    if con is not None:
+        con.close()
+    return con
+
+def user_human_update(con, cur, user_nm, username, email):
+    try:
+        # SQL문 실행
+        #user_id = 0
+        sql = """
+              select id from auth_user where email = \'{email}\'
+              """.format(email=email)
+        cur.execute(sql)
+
+        # 데이타 Fetch
+        rows = cur.fetchall()
+        exists_flag = False
+        for row in rows:
+            user_id = row[0]
+            exists_flag = True
+            break
+
+        if exists_flag:
+            sql1 = """
+                  update auth_user set username = \'{username}\' where user_id = {user_id}
+                  """.format(username=username, user_id=user_id)
+            cur.execute(sql1)
+            # print cur.rowcount, "record(s) affected"
+            logging.info("views.py def index user_human_update : %d record(s) affected", cur.rowcount)
+
+            sql2 = """
+                  update auth_userprofile set name = \'{user_nm}\' where user_id = {user_id}
+                  """.format(user_nm=user_nm, user_id=user_id)
+            cur.execute(sql2)
+            con.commit()
+            #print cur.rowcount, "record(s) affected"
+            logging.info("views.py def index user_human_update : %d record(s) affected", cur.rowcount)
+        else:
+            #print "0 record(s) affected"
+            logging.info("views.py def index user_human_update : %s record(s) affected", '0')
+            # if u not fuound, insert in mysql
+            import uuid
+            # 32 bytes password
+            _uuid = uuid.uuid4().__str__()
+            _uuid = _uuid.replace('-', '')
+
+            cmd = 'bash /edx/app/edxapp/edx-platform/add_user.sh {email} {password} {username}'.format(
+                email=email,
+                password=_uuid,
+                username=username)
+            logging.info('%s Shell script : %s', 'views.py def index user_human_update', cmd)
+            result = os.system(cmd)
+            # auth_user update
+            user_human_info_update(con, cur, user_nm, email)
+
+    except mdb.Error, e:
+        logging.info('views.py def index user_human_update MySQL: %s', e)
+
+def user_human_info_update(con, cur, user_nm, email):
+    try:
+        # SQL문 실행
+        user_id = 0
+        sql = """
+              select id from auth_user where email = \'{email}\'
+              """.format(email=email)
+        cur.execute(sql)
+
+        # 데이타 Fetch
+        rows = cur.fetchall()
+        exists_flag = False
+        for row in rows:
+            user_id = row[0]
+            exists_flag = True
+            break
+
+        if exists_flag:
+            sql = """
+                  update auth_userprofile set name = \'{user_nm}\' where user_id = {user_id}
+                  """.format(user_nm=user_nm, user_id=user_id)
+            cur.execute(sql)
+            con.commit()
+            logging.info("views.py def index user_human_info_update : %d record(s) affected", cur.rowcount)
+        else:
+            logging.info("views.py def index user_human_info_update : %s record(s) affected", '0')
+    except mdb.Error, e:
+        logging.info('views.py def index user_human_update MySQL: %s', e)
 
 def user_info_update(user_nm, email):
 
@@ -604,13 +818,14 @@ def user_info_update(user_nm, email):
     con = None
 
     # MySQL Connection 연결
-    #con = mdb.connect(settings.DATABASES.get('default').get('HOST'),
-    #                 settings.DATABASES.get('default').get('USER'),
-    #                 settings.DATABASES.get('default').get('PASSWORD'),
-    #                 settings.DATABASES.get('default').get('NAME'),
-    #                 charset='utf8')
+    con = mdb.connect(settings.DATABASES.get('default').get('HOST'),
+                     settings.DATABASES.get('default').get('USER'),
+                     settings.DATABASES.get('default').get('PASSWORD'),
+                     settings.DATABASES.get('default').get('NAME'),
+                     charset='utf8')
 
-    con = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
+    # con = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
+
     try:
         # Connection 으로부터 Cursor 생성
         cur = con.cursor()
@@ -688,10 +903,9 @@ def getLoginAPI(request):
     json_return = {}
     json_return['memid'] = ''
     json_return['email'] = ''
-    json_return['is_staff'] = '0'
+    json_return['is_staff'] = ''
     json_return['status'] = 'fail'
 
-    #test
     usekey = 'MTk0NTA4MTUxNTA0AAAAAA=='
 
     try:
@@ -713,14 +927,15 @@ def getLoginAPI(request):
         logging.info('memid  %s', memid)
 
         json_return['memid'] = usernm
-        json_return['email'] = usernm + '@mobis.co.kr'
+        email = usernm + '@mobis.co.kr'
+        json_return['email'] = email
     except:
         logging.info('getSeedDecData Call Error %s', 'views.py getLoginAPI method')
         return JsonResponse(json_return)
 
     #mysql get data
     try:
-        teacher = getLoginAPIdecrypto(usernm)
+        teacher = getLoginAPIdecrypto(email)
         json_return['is_staff'] = teacher
         json_return['status'] = 'success'
     except:
@@ -732,9 +947,9 @@ def getLoginAPI(request):
 
 def getSeedDecData(usekey, memid):
 
-    print "this is getSeedDecData !!!"
+    logging.info('%s this is getSeedDecData !!!', 'views.py getSeed128 method')
     try:
-        if usekey == None or memid == None:
+        if usekey is None or memid is None:
             logging.info('usekey None error %s', 'views.py getSeed128 method')
         else:
             usekey = usekey.replace(' ', '+')
@@ -743,17 +958,14 @@ def getSeedDecData(usekey, memid):
             if usekey is not None and memid is not None:
                 if len(usekey) == 24 and len(memid) == 24:
                     try:
-                        logging.info("DEBUG getSeedDecData -----------------------  %s",'test')
+                        logging.info('kotechseed128 and seed128.make_usekey_decryption %s', 'getSeedDecData method')
                         seed128 = kotechseed128.SEED()
-                        logging.info("DEBUG getSeedDecData -----------------------  %s",'test1')
                         decdata = seed128.make_usekey_decryption(1, usekey, memid)
-                        logging.info("DEBUG getSeedDecData -----------------------  %s",'test2')
-
                     except:
                         logging.info('kotechseed128 and seed128.make_usekey_decryption error %s', 'getSeedDecData method')
                         return ''
 
-                    if decdata == None:
+                    if decdata is None:
                         return ''
                     else:
                         seqky = decdata[0]    # usekey
@@ -1107,3 +1319,4 @@ def footer(request):
 
     else:
         return HttpResponse(status=406)
+

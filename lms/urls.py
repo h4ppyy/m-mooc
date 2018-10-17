@@ -78,6 +78,7 @@ urlpatterns = [
     url(r'^getloginapi', branding_views.getLoginAPI, name='decrypto'),
     url(r'^getsession', branding_views.getSession, name='sess'),
     url(r'^api/cert$', branding_views.cert, name='cert'),
+    url(r'^userhumanupdate$', branding_views.user_ora_human_update, name='human'),
 
     url(r'', include('student.urls')),
     # TODO: Move lms specific student views out of common code
