@@ -82,6 +82,20 @@ def comm_list(request, section=None, curr_page=None):
                 board_dict['modify_date'] = board_data.modify_date
 
                 query = '''
+                    SELECT last_name
+                    FROM auth_user
+                    WHERE id = {regist_id}
+                '''.format(regist_id=board_dict['regist_id'])
+                cur.execute(query)
+                rows = cur.fetchall()
+                if rows[0][0] == '' :
+                    board_dict['regist_id'] = '관리자'
+                else :
+                    board_dict['regist_id'] = rows[0][0]
+
+
+
+                query = '''
                     SELECT count(seq)
                       FROM tb_board_store
                      WHERE board_id = {board_id} AND del_yn = 'N';
@@ -122,12 +136,10 @@ def comm_view(request, section='N', curr_page=None, board_id=None):
 
     #board_id = '1'
 
-    logging.info("*********************************")
-    logging.info('board_id -> ', board_id)
-    logging.info("*********************************")
-    board_id = int(board_id)
 
-    #print "board_id -> ", board_id
+    board_id = int(board_id)
+    print('board_id =====',board_id)
+
     if section == 'N':
         page_title = '공지사항'
     else:
@@ -143,7 +155,7 @@ def comm_view(request, section='N', curr_page=None, board_id=None):
             select count(board_id)
             FROM tb_board
             where board_id = '{board_id}'
-            and use_yn = 'D'
+            and use_yn = 'N'
         '''.format(board_id=board_id)
         cur.execute(query)
         rows = cur.fetchall()
@@ -157,8 +169,20 @@ def comm_view(request, section='N', curr_page=None, board_id=None):
     if board_id is None:
         return redirect('/')
 
-
     board = TbBoard.objects.get(board_id=board_id)
+
+    with connections['default'].cursor() as cur:
+        query = '''
+            select last_name
+            FROM auth_user
+            where id = '{user_id}'
+        '''.format(user_id=board.regist_id)
+        cur.execute(query)
+        rows = cur.fetchall()
+        if rows[0][0] == '' :
+            board.regist_id = '관리자'
+        else :
+            board.regist_id = rows[0][0]
 
     if board:
         board.files = TbBoardAttach.objects.filter(del_yn='N',board_id=board_id)
@@ -177,6 +201,7 @@ def comm_view(request, section='N', curr_page=None, board_id=None):
 
     # local test
     board.content = board.content.replace('/home/project/management/home/static/upload/', '/static/file_upload/')
+    print('board ===========>',board)
     context = {
         'page_title': page_title,
         'board': board,
