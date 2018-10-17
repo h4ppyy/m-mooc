@@ -17,7 +17,7 @@ class VideoFields(object):
         help=_("If you set this value to True, you can use the video progress check"),
         display_name=_("Progress Check Activate"),
         scope=Scope.settings,
-        default=False
+        default=True
     )
     seek_enable = Boolean(
         help=_("progress bar control"),
