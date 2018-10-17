@@ -164,6 +164,7 @@
                          certNameLong: ['<span id="unenroll_cert_name">', certNameLong, '</span>'].join('')
                      }, true));
 
+                     $('#track-info').html(courseName +'을(를)<br> 수강취소 하시겠습니까?');
 
                      if ('data-refund-info' in dialogMessageAttr) {
                          $('#refund-info').text(dialogMessageAttr['data-refund-info']);
