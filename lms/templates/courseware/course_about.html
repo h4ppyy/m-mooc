@@ -117,9 +117,9 @@ $( document ).ready(function() {
 
 <section class="course-info">
 
-  <%block name="course_about_header">
-  <header class="course-profile" style='height: 330px; padding-left: 30px; padding-right: 30px;'>
-    <div class="intro-inner-wrapper">
+<%block name="course_about_header">
+  <header class="course-profile" style='height: 300px; padding-left: 30px; padding-right: 30px;'>
+    <div class="intro-inner-wrapper" style="max-width: 1250px;">
       <div class="table">
       <section class="intro">
         <div class="heading-group">
@@ -177,7 +177,7 @@ $( document ).ready(function() {
           </a>
           <div id="register_error"></div>
         %else:
-          <% 
+          <%
             if ecommerce_checkout:
               reg_href = ecommerce_checkout_link
             else:
@@ -198,14 +198,14 @@ $( document ).ready(function() {
       % if get_course_about_section(request, course, "video"):
       <a href="#video-modal" class="media" rel="leanModal">
         <div class="hero">
-          <img src="${course_image_urls['large']}" alt="" />
+          <img src="${course_image_urls['large']}" alt="" width="375px" height="200px"/>
           <div class="play-intro"></div>
         </div>
       </a>
       %else:
       <div class="media">
         <div class="hero">
-          <img src="${course_image_urls['large']}" alt="" />
+          <img src="${course_image_urls['large']}" alt="" width="375px" height="200px"/>
         </div>
       </div>
       % endif
