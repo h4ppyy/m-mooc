@@ -143,13 +143,6 @@ class DashboardPage(PageObject):
         button_link_css = "#actions-dropdown-link-{}".format(div_index)
         unenroll_css = "#unenroll-{}".format(div_index)
 
-        print('****************** hello ********************')
-        print('****************** hello ********************')
-        print('****************** hello ********************')
-        print('****************** hello ********************')
-        print('****************** hello ********************')
-        print('****************** hello ********************')
-
         if button_link_css is not None:
             self.q(css=button_link_css).first.click()
             self.wait_for_element_visibility(unenroll_css, 'Unenroll message dialog is visible.')
