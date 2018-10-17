@@ -23,7 +23,7 @@ displayname = get_enterprise_learner_generic_name(request) or username
     <li style="display: inline-block;">
         <div class="nav-item hidden-mobile">
                 <span class="sr-only">${_("Dashboard for:")}</span>
-                <span class="username" style="color: #fff;">${displayname}</span>
+                <span class="username" style="color: #fff;">${self.real_user.last_name} (${self.real_user.username})</span>
         </div>
     </li>
     <li style="display: inline-block;">
