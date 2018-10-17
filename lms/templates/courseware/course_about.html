@@ -110,7 +110,14 @@ $( document ).ready(function() {
 });
 </script>
 
-  <script src="${static.url('js/course_info.js')}"></script>
+<style>
+    .content-wrapper{
+        padding: 0px;
+        max-width: 100%;
+    }
+</style>
+
+<script src="${static.url('js/course_info.js')}"></script>
 </%block>
 
 <%block name="pagetitle">${course.display_name_with_default_escaped}</%block>

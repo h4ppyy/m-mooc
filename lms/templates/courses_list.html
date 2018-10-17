@@ -16,7 +16,7 @@
         <li>
           <div class="notice_stxt_area">
                                 <span class="notice_stxt">
-                                <a href="/comm_view/N/1/${comm['board_id']}">[${comm['head']}] ${comm['title']}</a>
+                                <a style='font-weight: bold;' href="/comm_view/N/1/${comm['board_id']}">[${comm['head']}] ${comm['title']}</a>
                                 </span>
             <span class="notice_date">${comm['regist_date']}</span>
           </div>
@@ -48,7 +48,7 @@
     </span>
 
     % if settings.FEATURES.get('COURSES_ARE_BROWSABLE'):
-      <section class="courses">
+      <section class="courses" style = "margin-bottom:-30px;">
         <ul class="courses-listing">
           ## limiting the course number by using HOMEPAGE_COURSE_MAX as the maximum number of courses
           %for idx, course in enumerate(rec_courses):
@@ -81,7 +81,7 @@
     </span>
 
     % if settings.FEATURES.get('COURSES_ARE_BROWSABLE'):
-      <section class="courses">
+      <section class="courses" style = "margin-bottom: -30px;">
         <ul class="courses-listing">
           ## limiting the course number by using HOMEPAGE_COURSE_MAX as the maximum number of courses
           %for idx, course in enumerate(courses):
