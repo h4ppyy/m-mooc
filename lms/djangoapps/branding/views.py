@@ -35,6 +35,8 @@ import hashlib
 import subprocess
 import datetime
 from django.views.decorators.csrf import csrf_exempt
+import cx_Oracle as ora
+import MySQLdb as mdb
 
 log = logging.getLogger(__name__)
 
@@ -192,15 +194,16 @@ def index(request):
                         # 32 bytes password
                         _uuid = uuid.uuid4().__str__()
                         _uuid = _uuid.replace('-', '')
-
+                        cmd = 'export NLS_LANG=AMERICAN_AMERICA.UTF8'
+                        result = os.system(cmd)
                         cmd = 'bash /edx/app/edxapp/edx-platform/add_user.sh {email} {password} {username}'.format(
                                    email=_email,
                                    password=_uuid,
-                                   username = user_id)
+                                   username = seqid)
                         logging.info('%s Shell script : %s', 'views.py def index step 12', cmd)
                         result = os.system(cmd)
                         # auth_user update
-                        user_info_update(user_nm, _email)
+                        user_info_update(seqid, _email)
 
                     user = User.objects.get(email=_email)
                     user.backend = 'ratelimitbackend.backends.RateLimitModelBackend'
@@ -224,7 +227,6 @@ def index(request):
 
     if request.user.is_authenticated:
         rt = getCrypto(request)
-        #rt = getCrypto(request)
         # Only redirect to dashboard if user has
         # courses in his/her dashboard. Otherwise UX is a bit cryptic.
         # In this case, we want to have the user stay on a course catalog
@@ -451,16 +453,15 @@ def getSeed128(request):
         return JsonResponse(json_return)
 
 def getLoginAPIdecrypto(email):
-    import MySQLdb as mdb
     con = None
     # MySQL Connection 연결
-    con = mdb.connect(settings.DATABASES.get('default').get('HOST'),
-                     settings.DATABASES.get('default').get('USER'),
-                     settings.DATABASES.get('default').get('PASSWORD'),
-                     settings.DATABASES.get('default').get('NAME'),
-                     charset='utf8')
+    #con = mdb.connect(settings.DATABASES.get('default').get('HOST'),
+    #                 settings.DATABASES.get('default').get('USER'),
+    #                 settings.DATABASES.get('default').get('PASSWORD'),
+    #                 settings.DATABASES.get('default').get('NAME'),
+    #                 charset='utf8')
 
-    # con = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
+    con = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
 
     try:
         # Connection 으로부터 Cursor 생성
@@ -469,33 +470,63 @@ def getLoginAPIdecrypto(email):
         # login 하는 경우에는 사번만 존재한다.
 
         # SQL문 실행
+
         sql = """
-            select
-                    case when is_staff = '1' then '1'
-                        else 
-                            case when is_staff = '0' and cnt1 = '1' then '1'
-                                else
-                                    case when is_staff = '0' and cnt2 = '1' then '2'
-                                            else
-                                                '0'
-                                    end
-                            end
-                       end is_staff
-            from (
-                        select 
-                                b.is_staff is_staff
-                                ,case when role = 'staff' and count(*) > 0 then '1' else '0' end  cnt1
-                                ,case when role = 'instructor' and count(*) > 0 then '1' else '0' end cnt2
-                        from student_courseaccessrole a 
-                                   left outer join (
-                                       select id, is_staff from auth_user
-                                       where email = \'{email}\'
-                                       ) b on a.user_id = b.id
-                        where a.user_id = b.id
-            ) tb
-        """.format(email=email)
+              select count(*) cnt
+              from student_courseaccessrole a
+                       left outer join (
+                           select id, is_staff from auth_user
+                           where email = \'{email}\'
+                           ) b on a.user_id = b.id
+              where a.user_id = b.id
+              """.format(email=email)
+
+        logging.info('sql1 ------ %s', sql)
         cur.execute(sql)
-        # 데이타 Fetch
+        row_cnt = cur.fetchall()
+        cnt_flag = False
+        cnt_count = 0
+        for row in row_cnt:
+            cnt_count = row[0]
+            cnt_flag = True
+            break
+
+        sql = """
+              select is_staff from auth_user
+              where email = \'{email}\'
+        """.format(email=email)
+
+        if cnt_flag:
+            if cnt_count > 0:
+                sql = """
+                    select
+                            case when is_staff = '1' then '1'
+                                 else 
+                                    case when is_staff = '0' and cnt1 = '1' then '1'
+                                         else
+                                            case when is_staff = '0' and cnt2 = '1' then '2'
+                                                 else
+                                                        '0'
+                                                 end
+                                         end
+                                 end is_staff
+                    from (
+                                select 
+                                        b.is_staff is_staff
+                                        ,case when role = 'staff' and count(*) > 0 then '1' else '0' end  cnt1
+                                ,case when role = 'instructor' and count(*) > 0 then '1' else '0' end cnt2
+                                from student_courseaccessrole a 
+                                           left outer join (
+                                               select id, is_staff from auth_user
+                                               where email = \'{email}\'
+                                               ) b on a.user_id = b.id
+                                where a.user_id = b.id
+                    ) tb
+                """.format(email=email)
+
+        logging.info('sql2 ------ %s', sql)
+
+        cur.execute(sql)
         rows = cur.fetchall()
         exists_flag = False
         for row in rows:
@@ -543,10 +574,6 @@ def usekey_check(ukey):
         return False
 
 def user_ora_exists_check(seqid):
-
-    import cx_Oracle as ora
-    #os.putenv('NLS_LANG', 'UTF8')
-
     try:
         db = None
         cur = None
@@ -566,9 +593,13 @@ def user_ora_exists_check(seqid):
             MOBIS_DB_IP = 'localhost'
             MOBIS_DB_PORT = '1521'
 
-        dsn = ora.makedsn(MOBIS_DB_IP, MOBIS_DB_PORT, MOBIS_DB_SID)
-        db = ora.connect(MOBIS_DB_USR, MOBIS_DB_PWD, dsn)
+        # dsn = ora.makedsn(MOBIS_DB_IP, MOBIS_DB_PORT, MOBIS_DB_SID)
+        # db = ora.connect(MOBIS_DB_USR, MOBIS_DB_PWD, dsn)
         # db = ora.connect("scott/tiger@127.0.0.1/XE")
+        # con = ora.connect("SWAUSER", "mbora#SW252", "10.230.22.252:1521/mobispdm")
+        _connectString = "{0}:{1}/{2}".format(MOBIS_DB_IP, MOBIS_DB_PORT, MOBIS_DB_SID)
+        con = ora.connect(MOBIS_DB_USR, MOBIS_DB_PWD, _connectString)
+        os.putenv('NLS_LANG', 'UTF8')
         cur = db.cursor()
 
         # get one row
@@ -586,7 +617,8 @@ def user_ora_exists_check(seqid):
                 """.format(seqid=seqid)
 
         # WFUSER.VW_HISTORY_SWA
-        logging.info('query: %s', query)
+        # mih delete logging
+        # logging.info('query: %s', query)
         cur.execute(query)
 
         for row in cur.fetchall():
@@ -607,13 +639,8 @@ def user_ora_exists_check(seqid):
 
 def user_ora_human_update(rnn_go):
     #http://localhost:18000/userhumanupdate?rnn_go=1
-    import cx_Oracle as ora
-    import MySQLdb as mdb
     #import os
-
     try:
-        #os.putenv('NLS_LANG', 'UTF8')
-
         db = None
         cur = None
         mycon = None
@@ -635,9 +662,9 @@ def user_ora_human_update(rnn_go):
             MOBIS_DB_IP = 'localhost'
             MOBIS_DB_PORT = '1521'
 
-        dsn = ora.makedsn(MOBIS_DB_IP, MOBIS_DB_PORT, MOBIS_DB_SID)
-        db = ora.connect(MOBIS_DB_USR, MOBIS_DB_PWD, dsn)
-        # db = ora.connect("scott/tiger@127.0.0.1/XE")
+        _connectString = "{0}:{1}/{2}".format(MOBIS_DB_IP, MOBIS_DB_PORT, MOBIS_DB_SID)
+        con = ora.connect(MOBIS_DB_USR, MOBIS_DB_PWD, _connectString)
+        os.putenv('NLS_LANG', 'UTF8')
         cur = db.cursor()
 
         # get one row
@@ -670,7 +697,6 @@ def user_ora_human_update(rnn_go):
         mycon = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
 
         # Connection 으로부터 Cursor 생성
-        logging.info("views.py def index user_human_connect", "test")
         mycur = mycon.cursor()
         #mycon, mycur = user_human_connect()
 
@@ -679,8 +705,6 @@ def user_ora_human_update(rnn_go):
             user_id = row[0]    # USER_ID
             user_nm = row[1]    # USER_KN
             #username = user_nm + '('+user_id+')'
-            username = user_id
-            user_nm = user_id
             email = user_id+'@mobis.co.kr'    # email
             logging.info("****user_id:%s, user_nm: %s, email: %s", user_id, user_nm, email)
             user_human_update(mycon, mycur, user_nm, user_id, email)
@@ -706,15 +730,14 @@ def user_ora_human_update(rnn_go):
             db.close()
 
 def user_human_connect():
-    import MySQLdb as mdb
     con = None
-    con = mdb.connect(settings.DATABASES.get('default').get('HOST'),
-                      settings.DATABASES.get('default').get('USER'),
-                      settings.DATABASES.get('default').get('PASSWORD'),
-                      settings.DATABASES.get('default').get('NAME'),
-                      charset='utf8')
+    #con = mdb.connect(settings.DATABASES.get('default').get('HOST'),
+    #                  settings.DATABASES.get('default').get('USER'),
+    #                  settings.DATABASES.get('default').get('PASSWORD'),
+    #                  settings.DATABASES.get('default').get('NAME'),
+    #                  charset='utf8')
 
-    # con = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
+    con = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
 
     # Connection 으로부터 Cursor 생성
     logging.info("views.py def index user_human_connect", "test")
@@ -730,6 +753,7 @@ def user_human_disconnect(con, cur):
     return con
 
 def user_human_update(con, cur, user_nm, username, email):
+    # user_human_update(mycon, mycur, user_nm, user_id, email)
     try:
         # SQL문 실행
         #user_id = 0
@@ -742,21 +766,21 @@ def user_human_update(con, cur, user_nm, username, email):
         rows = cur.fetchall()
         exists_flag = False
         for row in rows:
-            user_id = row[0]
+            id = row[0]
             exists_flag = True
             break
 
         if exists_flag:
             sql1 = """
-                  update auth_user set username = \'{username}\' where user_id = {user_id}
-                  """.format(username=username, user_id=user_id)
+                  update auth_user set username = \'{username}\', last_name = \'{last_name}\' where email = \'{email}\'
+                  """.format(username=username, last_name=user_nm, email=email)
             cur.execute(sql1)
             # print cur.rowcount, "record(s) affected"
             logging.info("views.py def index user_human_update : %d record(s) affected", cur.rowcount)
 
             sql2 = """
-                  update auth_userprofile set name = \'{user_nm}\' where user_id = {user_id}
-                  """.format(user_nm=user_nm, user_id=user_id)
+                  update auth_userprofile set name = \'{user_nm}\' where user_id = {id}
+                  """.format(user_nm=user_nm, id=id)
             cur.execute(sql2)
             con.commit()
             #print cur.rowcount, "record(s) affected"
@@ -795,15 +819,19 @@ def user_human_info_update(con, cur, user_nm, email):
         rows = cur.fetchall()
         exists_flag = False
         for row in rows:
-            user_id = row[0]
+            id = row[0]     # 키로 사용되는 숫자 값
             exists_flag = True
             break
 
         if exists_flag:
-            sql = """
-                  update auth_userprofile set name = \'{user_nm}\' where user_id = {user_id}
-                  """.format(user_nm=user_nm, user_id=user_id)
-            cur.execute(sql)
+            sql1 = """
+                  update auth_user set last_name = \'{last_name}\' where email = {email}
+                  """.format(last_name=user_nm, email=email)
+            cur.execute(sql1)
+            sql2 = """
+                  update auth_userprofile set name = \'{user_nm}\' where user_id = {id}
+                  """.format(user_nm=user_nm, id=id)
+            cur.execute(sql2)
             con.commit()
             logging.info("views.py def index user_human_info_update : %d record(s) affected", cur.rowcount)
         else:
@@ -812,19 +840,15 @@ def user_human_info_update(con, cur, user_nm, email):
         logging.info('views.py def index user_human_update MySQL: %s', e)
 
 def user_info_update(user_nm, email):
-
-    import MySQLdb as mdb
-
     con = None
-
     # MySQL Connection 연결
-    con = mdb.connect(settings.DATABASES.get('default').get('HOST'),
-                     settings.DATABASES.get('default').get('USER'),
-                     settings.DATABASES.get('default').get('PASSWORD'),
-                     settings.DATABASES.get('default').get('NAME'),
-                     charset='utf8')
+    #con = mdb.connect(settings.DATABASES.get('default').get('HOST'),
+    #                 settings.DATABASES.get('default').get('USER'),
+    #                 settings.DATABASES.get('default').get('PASSWORD'),
+    #                 settings.DATABASES.get('default').get('NAME'),
+    #                 charset='utf8')
 
-    # con = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
+    con = mdb.connect(host='localhost', user='root', passwd='', db='edxapp', charset='utf8')
 
     try:
         # Connection 으로부터 Cursor 생성
@@ -841,15 +865,19 @@ def user_info_update(user_nm, email):
         rows = cur.fetchall()
         exists_flag = False
         for row in rows:
-            user_id = row[0]
+            id = row[0]
             exists_flag = True
             break
 
         if exists_flag:
-            sql = """
-                  update auth_userprofile set name = \'{user_nm}\' where user_id = {user_id}
-                  """.format(user_nm=user_nm, user_id=user_id)
-            cur.execute(sql)
+            sql1 = """
+                  update auth_user set last_name = \'{last_name}\' where email = {email}
+                  """.format(last_name=user_nm, email=email)
+            cur.execute(sql1)
+            sql2 = """
+                  update auth_userprofile set name = \'{user_nm}\' where user_id = {id}
+                  """.format(user_nm=user_nm, id=id)
+            cur.execute(sql2)
             con.commit()
             #print cur.rowcount, "record(s) affected"
             logging.info("%d record(s) affected", cur.rowcount)
@@ -989,7 +1017,7 @@ from lms.djangoapps.grades.models import PersistentCourseGrade
 from django.core.exceptions import ObjectDoesNotExist
 from courseware.courses import get_course_with_access
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
-import MySQLdb as mdb
+#import MySQLdb as mdb
 from bson.objectid import ObjectId
 from pymongo import MongoClient
 from django.db import connections
