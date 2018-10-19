@@ -92,10 +92,10 @@ ${page_title}
         <ul>
             <li class="title">
                 <div style="float:left; margin:-14px; margin-left:auto;">
-                    <h3 id="title" title="제목">[${board.head_title}] ${board.subject}</h3>
+                    <h3 id="title" title="제목" style="font-family: 'Open Sans'">[${board.head_title}] ${board.subject}</h3>
                 </div>
 
-                <div class ='register' style="float:right; margin-right: 100px; margin-top: -8px; font-weight: normal;">작성자 : ${board.regist_id}</div>
+                <div class ='register' style="float:right; margin-right: 100px; margin-top: -8px; font-weight: normal; font-size: 13px;">작성자 : ${board.regist_id}</div>
               <!--   date format 불일치 -->
                 <time id="reg_date" style="bottom: 18px;margin-right: 5px;" title="작성일">작성일 : ${board.regist_date}</time>
                 <time id="mod_date" style="bottom: 2px;margin-right: 5px;" title="수정일">수정일 : ${board.modify_date}</time>
@@ -107,7 +107,7 @@ ${page_title}
             <!-- format 불일치 -->
             % if board.files:
             <li class="file-list" title="첨부파일" id="file_li" style="display: inline-block; font-family: Open Sans; font-size:15px">
-                <h5 style="display: inline-block; font-family: Open Sans; font-size:15px;">첨부파일:
+                <h5 style="display: inline-block; font-family: Open Sans; font-size:13px;">첨부파일:
                 % for file in board.files:
                     % if file.del_yn == 'N' :
                     <a href="/comm_file/${file.seq}" style="margin-left: 5px !important; display: inline-block !important; background: #e8e8e8 !important; padding: 9px 10px !important; margin-bottom: 0px !important; color: #4e4e4e !important; border-radius: 10px !important;">${file.file_origin_name}</a>
