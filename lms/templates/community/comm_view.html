@@ -16,7 +16,7 @@ ${page_title}
   .container > h2 {
     font-size: 1.875rem;
     font-weight: 700;
-    font-family: "Open Sans";
+    font-family: "Nanum Gothic";
     border-bottom: solid 1px #e0e0e0;
     padding-bottom: 1.250rem;
     margin-bottom: 1.5rem;
@@ -89,31 +89,30 @@ ${page_title}
     <h2 title="${page_title}" id="main">${page_title}</h2>
     <!-- [s] board view -->
     <section class="board-view">
-        <ul>
+        <ul style="padding:0px">
             <li class="title">
                 <div style="float:left; margin:-14px; margin-left:auto;">
-                    <h3 id="title" title="제목" style="font-family: 'Open Sans'">[${board.head_title}] ${board.subject}</h3>
+                    <h3 id="title" title="제목">[${board.head_title}] ${board.subject}</h3>
                 </div>
 
-                <div class ='register' style="float:right; margin-right: 100px; margin-top: -8px; font-weight: normal; font-size: 13px;">작성자 : ${board.regist_id}</div>
+                <div class ='register' style="float:right; margin-right: 100px; margin-top: -8px; font-weight:0;">작성자 : ${board.regist_id}</div>
               <!--   date format 불일치 -->
                 <time id="reg_date" style="bottom: 18px;margin-right: 5px;" title="작성일">작성일 : ${board.regist_date}</time>
                 <time id="mod_date" style="bottom: 2px;margin-right: 5px;" title="수정일">수정일 : ${board.modify_date}</time>
             </li>
 
-            <li class="contents" id="context" title="내용" style="font-size:15px;">
+            <li class="contents" id="context" title="내용">
                 ${board.content}
             </li>
             <!-- format 불일치 -->
             % if board.files:
-            <li class="file-list" title="첨부파일" id="file_li" style="display: inline-block; font-family: Open Sans; font-size:15px">
-                <h5 style="display: inline-block; font-family: Open Sans; font-size:13px;">첨부파일:
+            <li class="file-list" title="첨부파일" id="file_li" style="display: inline-block; margin: 10px 5px 10px 5px; font-family: Open Sans; font-size:10px">
+                <h5 style="display: inline-block; font-family: Open Sans;">첨부파일: </h5>
                 % for file in board.files:
                     % if file.del_yn == 'N' :
                     <a href="/comm_file/${file.seq}" style="margin-left: 5px !important; display: inline-block !important; background: #e8e8e8 !important; padding: 9px 10px !important; margin-bottom: 0px !important; color: #4e4e4e !important; border-radius: 10px !important;">${file.file_origin_name}</a>
                     %endif
                 % endfor
-                </h5>
             </li>
             % endif
 
