@@ -103,7 +103,7 @@ function search(page_no) {
                 //console.log(data[i].subject + ":" + data[i].board_id);
                 html += "<li class='tbody'>";
                 html += "   <span class='no'>" + eval(total_cnt - (10 * (curr_page - 1) + i)) + "</span>";
-                html += "   <span class='title' style='width:50%;'><a id='comm_link' href='/comm_view/" + "N" + "/" + $("#curr_page").val() + "/" + data[i].board_id + "'><i>" + "[" + data[i].head_title + "] " + "</i>" + data[i].subject + " </a>";
+                html += "   <span class='title' style='width:58%;'><a id='comm_link' href='/comm_view/" + "N" + "/" + $("#curr_page").val() + "/" + data[i].board_id + "'><i>" + "[" + data[i].head_title + "] " + "</i>" + data[i].subject + " </a>";
                 if (attach_file == 'Y')
                     html += "<img style='margin-right: 5px;' src='/static/images/Clip.png'/>";
                 if (reg_date > yesterday)

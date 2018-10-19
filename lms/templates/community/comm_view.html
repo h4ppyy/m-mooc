@@ -89,7 +89,7 @@ ${page_title}
     <h2 title="${page_title}" id="main">${page_title}</h2>
     <!-- [s] board view -->
     <section class="board-view">
-        <ul>
+        <ul style="padding:0px">
             <li class="title">
                 <div style="float:left; margin:-14px; margin-left:auto;">
                     <h3 id="title" title="제목">[${board.head_title}] ${board.subject}</h3>
@@ -110,7 +110,7 @@ ${page_title}
                 <h5 style="display: inline-block; font-family: Open Sans;">첨부파일: </h5>
                 % for file in board.files:
                     % if file.del_yn == 'N' :
-                    <p><a href="/comm_file/${file.seq}" style="margin-left: 5px !important; display: inline-block !important; background: #e8e8e8 !important; padding: 9px 10px !important; margin-bottom: 0px !important; color: #4e4e4e !important; border-radius: 10px !important;">${file.file_origin_name}</a></p>
+                    <a href="/comm_file/${file.seq}" style="margin-left: 5px !important; display: inline-block !important; background: #e8e8e8 !important; padding: 9px 10px !important; margin-bottom: 0px !important; color: #4e4e4e !important; border-radius: 10px !important;">${file.file_origin_name}</a>
                     %endif
                 % endfor
             </li>
