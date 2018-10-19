@@ -21,6 +21,7 @@ ${page_title}
     border-bottom: solid 1px #e0e0e0;
     padding-bottom: 1.250rem;
     margin-bottom: 1.5rem;
+    color : #000000;
   }
   .board-view li.title {
     border-top: solid 2px #646464;
@@ -256,31 +257,31 @@ ${page_title}
   }
 </style>
 <section class="container">
-  <h2 title="${page_title}" id="main">${page_title}</h2>
+  <h2 title="${page_title}" id="main" stlye="font-family:Open Sans">${page_title}</h2>
   <!-- [s] board list -->
   <section class="board-search-box" style="margin-top:0;">
-    <select id="search_con" title="검색 조건 선택">
+    <select id="search_con" title="검색 조건 선택" style="font-family: Open Sans;">
       <option value="" title="전체">- 전체 -</option>
       <option value="title" title="제목">- 제목 -</option>
     </select>
-    <input type="text" id="search_search" onkeydown="onKeyDown()" aria-label="검색어 입력" title="검색어 입력">
-    <input type="button" id="search" value="검색" title="검색" aria-label="검색">
-    <input type="hidden" id="all_pages" value="0">
-    <input type="hidden" id="curr_page" value="${curr_page if curr_page else '1'}">
+    <input type="text" id="search_search" onkeydown="onKeyDown()" aria-label="검색어 입력" title="검색어 입력" style="font-family:Open Sans; font-style:normal;">
+    <input type="button" id="search" value="검색" title="검색" aria-label="검색" style="font-family:Open Sans;">
+    <input type="hidden" id="all_pages" value="0" style="font-family:Open Sans;">
+    <input type="hidden" id="curr_page" value="${curr_page if curr_page else '1'}" style="font-family:Open Sans;">
   </section>
   <section class="board-list">
     <ul>
-      <li class="thead">
+      <li class="thead" style="font-family:Open Sans;">
         <span class="no" title="번호">번호</span>
         <span class="title" title="제목" style="width:58%;">제목</span>
         <span class="register" title="작성자" style="width:15%;">작성자</span>
         <span class="date" title="날짜">날짜</span>
       </li>
 
-      <div id="tbody"></div>
+      <div id="tbody" style="font-family:Open Sans;"></div>
     </ul>
 
-    <div id="paging" class="paging"></div>
+    <div id="paging" class="paging" style="font-family:Open Sans;"></div>
   </section>
   <!-- [e] board list -->
 </section>

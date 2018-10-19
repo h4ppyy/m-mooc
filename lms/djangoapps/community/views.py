@@ -53,11 +53,11 @@ def comm_list(request, section=None, curr_page=None):
 
         if search_str:
             if search_con == 'title':
-                comm_list = TbBoard.objects.filter(use_yn='Y').filter(Q(subject__icontains=search_str)).order_by('-regist_date')
+                comm_list = TbBoard.objects.filter(use_yn='Y',delete_yn='N').filter(Q(subject__icontains=search_str)).order_by('-regist_date')
             else:
-                comm_list = TbBoard.objects.filter(use_yn='Y').filter(Q(subject__icontains=search_str) | Q(content__icontains=search_str)).order_by('-regist_date')
+                comm_list = TbBoard.objects.filter(use_yn='Y',delete_yn='N').filter(Q(subject__icontains=search_str) | Q(content__icontains=search_str)).order_by('-regist_date')
         else:
-            comm_list = TbBoard.objects.filter(use_yn='Y').order_by( '-regist_date')
+            comm_list = TbBoard.objects.filter(use_yn='Y',delete_yn='N').order_by( '-regist_date')
 
         print "comm_list",comm_list
 

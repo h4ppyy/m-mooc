@@ -778,8 +778,8 @@
                 edx.HtmlUtils.HTML(msg)
             );
             this.clear_all_notifications();
-            this.gentleAlertNotification.show();
-            this.gentleAlertNotification.focus();
+            //this.gentleAlertNotification.show();
+            //this.gentleAlertNotification.focus();
         };
 
         Problem.prototype.save = function() {
