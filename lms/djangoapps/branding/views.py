@@ -85,6 +85,8 @@ def index(request):
 
                 chk = False
                 if usekey is not None and memid is not None:
+                    if len(memid) == 23:
+                        memid = '+' + memid 
                     if len(usekey) == 24 and len(memid) == 24:
                         chk = True
 
@@ -419,6 +421,8 @@ def getSeed128(request):
             memid = memid.replace(' ', '+')
 
             if usekey != None and memid != None:
+                if len(memid) == 23:
+                    memid = '+' + memid 
                 if len(usekey) == 24 and len(memid) == 24:
                     try:
                         seed128 = kotechseed128.SEED()
@@ -531,6 +535,7 @@ def getLoginAPIdecrypto(email):
         cur.execute(sql)
         rows = cur.fetchall()
         exists_flag = False
+        teacher_count = ''
         for row in rows:
             teacher_count = row[0]
             exists_flag = True
@@ -951,6 +956,10 @@ def getLoginAPI(request):
 
     #decrypto
     try:
+        usekey = usekey.replace(' ', '+')
+        memid = memid.replace(' ', '+')
+        if len(memid) == 23:
+            memid = '+' + memid
         usernm = getSeedDecData(usekey, memid)
 
         logging.info('usekey %s', usekey)
@@ -959,8 +968,9 @@ def getLoginAPI(request):
         json_return['memid'] = usernm
         email = usernm + '@mobis.co.kr'
         json_return['email'] = email
-    except:
-        logging.info('getSeedDecData Call Error %s', 'views.py getLoginAPI method')
+    #except:
+    except Exception as e:
+        logging.info('getSeedDecData Call Error %s', e)
         return JsonResponse(json_return)
 
     #mysql get data
@@ -972,6 +982,7 @@ def getLoginAPI(request):
         logging.info('getLoginAPIdecrypto Call Error %s', 'views.py getLoginAPI method')
         return JsonResponse(json_return)
 
+    logging.info('getLoginAPI Return Data %s', json_return)
     return JsonResponse(json_return)
 
 
@@ -986,6 +997,8 @@ def getSeedDecData(usekey, memid):
             memid = memid.replace(' ', '+')
 
             if usekey is not None and memid is not None:
+                if len(memid) == 23:
+                    memid = '+' + memid 
                 if len(usekey) == 24 and len(memid) == 24:
                     try:
                         logging.info('kotechseed128 and seed128.make_usekey_decryption %s', 'getSeedDecData method')
@@ -1001,10 +1014,13 @@ def getSeedDecData(usekey, memid):
                         seqky = decdata[0]    # usekey
                         seqid = decdata[1]    # emp_no
                         seqid = seqid.replace('\x00', '')
+                        logging.info('%s result ok', 'getSeedDecData method')
                         return seqid
                 else:
+                    logging.info('%s Length Error', 'getSeedDecData method')
                     return ''
             else:
+                logging.info('%s None Error', 'getSeedDecData method')
                 return ''
 
         logging.info('finish %s', 'getSeedDecData method')
