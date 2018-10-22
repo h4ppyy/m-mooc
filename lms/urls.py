@@ -81,6 +81,7 @@ urlpatterns = [
 
     url(r'^api/cert$', branding_views.cert, name='cert'),
     url(r'^api/aup$', branding_views.aup, name='aup'),
+    url(r'^api/staff$', branding_views.staff, name='staff'),
 
     url(r'', include('student.urls')),
     # TODO: Move lms specific student views out of common code

