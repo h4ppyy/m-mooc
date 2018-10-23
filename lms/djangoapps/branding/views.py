@@ -31,7 +31,7 @@ import requests
 from django.contrib.auth import login as django_login
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
-
+import cx_Oracle as ora
 
 import hashlib
 import subprocess
