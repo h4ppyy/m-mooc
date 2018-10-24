@@ -16,6 +16,8 @@ from openedx.core.djangoapps.password_policy.forms import PasswordPolicyAwareAdm
 
 from ratelimitbackend import admin
 
+from cms.djangoapps.api import views as KotechViews
+
 django_autodiscover()
 admin.site.site_header = _('Studio Administration')
 admin.site.site_title = admin.site.site_header
@@ -34,6 +36,9 @@ LIBRARY_KEY_PATTERN = r'(?P<library_key_string>library-v1:[^/+]+\+[^/+]+)'
 
 urlpatterns = [
     url(r'', include('student.urls')),
+
+    url('^api/video$', KotechViews.video, name='video'),
+
     url(r'^transcripts/upload$', contentstore.views.upload_transcripts, name='upload_transcripts'),
     url(r'^transcripts/download$', contentstore.views.download_transcripts, name='download_transcripts'),
     url(r'^transcripts/check$', contentstore.views.check_transcripts, name='check_transcripts'),

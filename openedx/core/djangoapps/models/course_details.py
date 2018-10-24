@@ -331,7 +331,10 @@ class CourseDetails(object):
         #  the right thing
         result = None
         if video_key:
+            print('video_key ============>',video_key)
             result = (
-                '<iframe title="YouTube Video" width="560" height="315" src=' + video_key + ' frameborder="0" allowfullscreen=""></iframe>'
+
+                '<iframe title="YouTube Video" width="560" height="315" src="' + video_key + '" frameborder="0" allowfullscreen=""></iframe>'
             )
+
         return result

@@ -101,8 +101,16 @@ define(['backbone', 'underscore', 'gettext', 'js/models/validation_helpers', 'js
             },
 
             videosourceSample: function() {
-                if (this.has('intro_video')) return '//www.youtube.com/embed/' + this.get('intro_video');
-                else return '';
+                if (this.has('intro_video')){
+                    console.log("data ->", this.get('intro_video'));
+                    console.log('videosourceSample if');
+                    return this.get('intro_video');
+                }
+                else {
+                    console.log("data ->", this.get('intro_video'));
+                    console.log('videosourceSample else');
+                    return '';
+                }
             },
 
     // Whether or not the course pacing can be toggled. If the course
