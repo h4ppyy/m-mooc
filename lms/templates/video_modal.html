@@ -5,6 +5,8 @@
 
 <div id="video-modal" class="modal video-modal">
   <div class="inner-wrapper">
-    ${get_course_about_section(request, course, "video")}
+      <video width="560" height="315" controls="controls" poster="">
+          ${get_course_about_section(request, course, "video")}
+      </video>
   </div>
 </div>

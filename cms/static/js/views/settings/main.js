@@ -103,8 +103,34 @@ define(['js/views/validation', 'codemirror', 'underscore', 'jquery', 'jquery.ui'
                    );
                    this.codeMirrorize(null, $('#course-about-sidebar-html')[0]);
 
-                   this.$el.find('.current-course-introduction-video iframe').attr('src', this.model.videosourceSample());
-                   this.$el.find('#' + this.fieldToSelectorMap.intro_video).val(this.model.get('intro_video') || '');
+                    org = this.model.get('org');
+                    course_id = this.model.get('course_id');
+                    run = this.model.get('run');
+
+                    var return_video = function () {
+                        var tmp = null;
+                        $.ajax({
+                            'async': false,
+                            'type': "GET",
+                            'global': false,
+                            'url': "/api/video",
+                            'data': {
+                                org: org,
+                                course_id: course_id,
+                                run: run
+                            },
+                            'success': function (data) {
+                                tmp = data.result;
+                            }
+                        });
+                        return tmp;
+                    }();
+                    var video_source = '<video width="560" height="315" controls="controls" poster="">';
+                    video_source += '<source src="'+return_video+'" type="video/mp4"/>';
+                    video_source +='</video>';
+                   $('#video_url').html(video_source);
+                   this.$el.find('#' + this.fieldToSelectorMap.intro_video).val(return_video);
+                   console.log(this.$el.find('#' + this.fieldToSelectorMap.intro_video).val(return_video));
                    if (this.model.has('intro_video')) {
                        this.$el.find('.remove-course-introduction-video').show();
                    } else this.$el.find('.remove-course-introduction-video').hide();
@@ -285,6 +311,7 @@ define(['js/views/validation', 'codemirror', 'underscore', 'jquery', 'jquery.ui'
                    case 'course-introduction-video':
                        this.clearValidationErrors();
                        var previewsource = this.model.set_videosource($(event.currentTarget).val());
+                       console.log(previewsource);
                        clearTimeout(this.videoTimer);
                        this.videoTimer = setTimeout(_.bind(function() {
                            this.$el.find('.current-course-introduction-video iframe').attr('src', previewsource);
@@ -296,6 +323,7 @@ define(['js/views/validation', 'codemirror', 'underscore', 'jquery', 'jquery.ui'
                        }, this), 1000);
                        break;
                    case 'course-pace-self-paced':
+
             // Fallthrough to handle both radio buttons
                    case 'course-pace-instructor-paced':
                        this.model.set('self_paced', JSON.parse(event.currentTarget.value));

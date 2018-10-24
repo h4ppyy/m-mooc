@@ -67,9 +67,10 @@ define(['backbone', 'underscore', 'gettext', 'js/models/validation_helpers', 'js
                     );
                 }
                 if (newattrs.intro_video && newattrs.intro_video !== this.get('intro_video')) {
-                    if (this._videokey_illegal_chars.exec(newattrs.intro_video)) {
-                        errors.intro_video = gettext('Key should only contain letters, numbers, _, or -');
-                    }
+                    //
+                    // if (this._videokey_illegal_chars.exec(newattrs.intro_video)) {
+                    //     errors.intro_video = gettext('Key should only contain letters, numbers, _, or -');
+                    // }
             // TODO check if key points to a real video using google's youtube api
                 }
                 if (_.has(newattrs, 'entrance_exam_minimum_score_pct')) {
@@ -100,8 +101,16 @@ define(['backbone', 'underscore', 'gettext', 'js/models/validation_helpers', 'js
             },
 
             videosourceSample: function() {
-                if (this.has('intro_video')) return '//www.youtube.com/embed/' + this.get('intro_video');
-                else return '';
+                if (this.has('intro_video')){
+                    console.log("data ->", this.get('intro_video'));
+                    console.log('videosourceSample if');
+                    return this.get('intro_video');
+                }
+                else {
+                    console.log("data ->", this.get('intro_video'));
+                    console.log('videosourceSample else');
+                    return '';
+                }
             },
 
     // Whether or not the course pacing can be toggled. If the course
