@@ -9,8 +9,10 @@ def video(request):
 
     database_ip = 'edx.devstack.mongo'
     client = MongoClient(database_ip, 27017)
-    db = client.edxapp
+    #client = MongoClient('mongodb://edx.devstack.mongo:27017/')
+    client.edxapp.authenticate("edxapp", "password")
 
+    db = client.edxapp
     org = request.GET.get('org')
     course_id = request.GET.get('course_id')
     run = request.GET.get('run')
