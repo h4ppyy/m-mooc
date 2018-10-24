@@ -486,7 +486,8 @@ CMS.URL.UPLOAD_ASSET = '${upload_asset_url | n, js_escaped_string}'
                   <label for="course-introduction-video">${_("Course Introduction Video")}</label>
                   <div class="input input-existing">
                     <div class="current current-course-introduction-video">
-                      <iframe width="618" height="350" title="${_('Course Introduction Video')}" src="" frameborder="0" allowfullscreen></iframe>
+                      <div id="video_url">
+                      </div>
                     </div>
                     <div class="actions">
                       <a href="#" class="remove-item remove-course-introduction-video remove-video-data"><span class="delete-icon"></span>${_("Delete Current Video")}</a>

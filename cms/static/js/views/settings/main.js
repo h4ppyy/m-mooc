@@ -125,8 +125,10 @@ define(['js/views/validation', 'codemirror', 'underscore', 'jquery', 'jquery.ui'
                         });
                         return tmp;
                     }();
-                   console.log(return_video);
-                   this.$el.find('.current-course-introduction-video iframe').attr('src', return_video);
+                    var video_source = '<video width="560" height="315" controls="controls" poster="">';
+                    video_source += '<source src="'+return_video+'" type="video/mp4"/>';
+                    video_source +='</video>';
+                   $('#video_url').html(video_source);
                    this.$el.find('#' + this.fieldToSelectorMap.intro_video).val(return_video);
                    console.log(this.$el.find('#' + this.fieldToSelectorMap.intro_video).val(return_video));
                    if (this.model.has('intro_video')) {
