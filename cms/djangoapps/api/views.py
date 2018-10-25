@@ -7,10 +7,10 @@ from pymongo import MongoClient
 
 def video(request):
 
-    database_ip = 'edx.devstack.mongo'
+    database_ip = 'localhost'
     client = MongoClient(database_ip, 27017)
     #client = MongoClient('mongodb://edx.devstack.mongo:27017/')
-    client.edxapp.authenticate("edxapp", "password")
+    client.edxapp.authenticate("edxapp", "iU2aaH98IpI1HNCHn5k0uw43ZmpX8fMFN8S")
 
     db = client.edxapp
     org = request.GET.get('org')
