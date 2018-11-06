@@ -114,7 +114,7 @@ from pipeline_mako import render_require_js_path_overrides
 
   <link rel="stylesheet" type="text/html" href="/static/js/index2.js" />
   <script>
-    window.baseUrl = "${settings.STATI<nav class=\"nav-colophon\" aria-labelC_URL | n, js_escaped_string}";
+    window.baseUrl = "${settings.STATIC_URL | n, js_escaped_string}";
     (function (require) {
       require.config({
           baseUrl: window.baseUrl
