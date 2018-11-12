@@ -82,12 +82,12 @@ export class CourseOutline {  // eslint-disable-line import/prefer-default-expor
         toggleAllButton.setAttribute('aria-expanded', 'false');
         sectionAction = collapseSection;
         toggleAllSpan.classList.add(extraPaddingClass);
-        toggleAllSpan.innerText = 'Expand All 333';
+        toggleAllSpan.innerText = '모두 펼치기';
       } else {
         toggleAllButton.setAttribute('aria-expanded', 'true');
         sectionAction = expandSection;
         toggleAllSpan.classList.remove(extraPaddingClass);
-        toggleAllSpan.innerText = 'Collapse All 444';
+        toggleAllSpan.innerText = '모두 접기';
       }
       const sections = Array.prototype.slice.call(document.querySelectorAll('.accordion-trigger'));
       sections.forEach((sectionToggleButton) => {
