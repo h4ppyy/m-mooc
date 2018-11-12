@@ -124,6 +124,11 @@ def comm_list(request, section=None, curr_page=None):
         else:
             return None
 
+        # secure code
+        if curr_page.isdigit() == False:
+            curr_page = "1"
+        # secure code
+
         context = {
             'page_title': page_title,
             'curr_page': curr_page,
