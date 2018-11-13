@@ -15011,7 +15011,7 @@ msgstr "강좌에 수강 등록되어 있습니다"
 #: lms/templates/shoppingcart/registration_code_receipt.html
 #: openedx/features/journals/templates/journals/bundle_about.html
 msgid "View Course"
-msgstr "학습강좌 등록하기"
+msgstr "학습하기"
 
 #: lms/templates/courseware/course_about.html
 msgid "This course is in your <a href=\"{cart_link}\">cart</a>."
