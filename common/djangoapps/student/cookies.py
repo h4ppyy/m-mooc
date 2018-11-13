@@ -35,7 +35,7 @@ def standard_cookie_settings(request):
         'expires': expires,
         'domain': settings.SESSION_COOKIE_DOMAIN,
         'path': '/',
-        'httponly': True,
+        'httponly': None,
     }
 
     return cookie_settings
