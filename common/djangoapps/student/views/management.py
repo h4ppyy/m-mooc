@@ -179,7 +179,7 @@ def index(request, extra_context=None, user=AnonymousUser()):
     print("**********************************************")
 
     courses = list()
-    for i in CourseOverview.objects.filter(enrollment_start__lte=kor_time,enrollment_end__gte=kor_time,start__lte=max_time):
+    for i in CourseOverview.objects.filter(enrollment_start__lte=kor_time,enrollment_end__gte=kor_time,start__lte=max_time).order_by('-start','display_name'):
         print('i ---------------->',i)
         courses.append(i)
     print(courses)
