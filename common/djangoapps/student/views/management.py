@@ -186,7 +186,7 @@ def index(request, extra_context=None, user=AnonymousUser()):
 
 
     rec_courses = list()
-    for i in CourseOverview.objects.filter(recommend='Y'):
+    for i in CourseOverview.objects.filter(recommend='Y').order_by('-start','display_name'):
         rec_courses.append(i)
 
     context = {}
