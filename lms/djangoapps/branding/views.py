@@ -69,10 +69,19 @@ def index(request):
         try:
             logging.info('%s', 'views.py def index step 1')
             if 1 == 1:
-                usekey = request.POST.get('usekey')  # usekey : emp_no (ex: 2018092011)
-                memid = request.POST.get('memid')    # memid  : emp_no (ex: 2018092011)
-                # usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
-                # memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
+                if request.method == 'POST':
+                    usekey = request.POST.get('usekey')  # usekey : emp_no (ex: 2018092011)
+                    memid = request.POST.get('memid')    # memid  : emp_no (ex: 2018092011)
+                    logging.info('login SSO check module : POST', 'start')
+                else:
+                    usekey = request.GET.get('usekey')  # usekey : emp_no (ex: 2018092011)
+                    memid = request.GET.get('memid')    # memid  : emp_no (ex: 2018092011)
+                    logging.info('login SSO check module : GET', 'start')
+    
+                if request.method == 'POST':
+                    RE_LOAD = "http://swa.mobis.co.kr/?usekey=" + usekey + "&memid=" + memid
+                    logging.info('---------------> %s ', RE_LOAD)
+                    return redirect(RE_LOAD)
 
                 if usekey is None or memid is None:
                     logging.info('%s usekey or memid no data', 'views.py def index step E1')
@@ -272,6 +281,8 @@ def index(request):
 
     #  we do not expect this case to be reached in cases where
     #  marketing and edge are enabled
+
+
     return student.views.index(request, user=request.user)
 
 
