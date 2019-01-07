@@ -517,16 +517,21 @@ def getLoginAPIdecrypto(email):
             if cnt_count > 0:
                 sql = """
                     select
-                            case when is_staff = '1' then '1'
-                                 else 
-                                    case when is_staff = '0' and cnt1 = '1' then '1'
-                                         else
-                                            case when is_staff = '0' and cnt2 = '1' then '2'
-                                                 else
-                                                        '0'
-                                                 end
-                                         end
-                                 end is_staff
+                        case 
+                        when is_staff = '1' 
+                        then 1
+                        else 
+                            case 
+                            when is_staff = '0' and cnt1 = '1' 
+                            then 1
+                            else
+                                case 
+                                when is_staff = '0' and cnt2 = '1' 
+                                then 2
+                                else 0
+                                end
+                            end
+                        end is_staff
                     from (
                                 select 
                                         b.is_staff is_staff

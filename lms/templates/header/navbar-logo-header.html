@@ -48,7 +48,7 @@ from branding import api as branding_api
     <li class="item nav-global-03"><a href="/comm_list/N" style='font-family: "Open Sans" !important; font-size: 17px;'>공지사항</a></li>
     % if 'cms_user_val' in request.session:
           % if 'cms_is_staff' in request.session:
-              % if request.session['cms_is_staff'] != '0' and request.session['cms_is_staff'] != '':
+              % if request.session['cms_is_staff'] != 0 and request.session['cms_is_staff'] != '':
     <li class="item nav-global-06"><a href="http://swa.mobis.co.kr:18010" target="blank" style='font-family: "Open Sans" !important;'>스튜디오</a></li>
     <li class="item nav-global-07"><a href="javascript:void(0);" onclick="go('http://cms.mobis.co.kr/sso?memid=${request.session["cms_user_val"]}', '${request.session["cms_user_val"]}');" style='font-family: "Open Sans" !important;'>CMS</a></li>
               % endif
